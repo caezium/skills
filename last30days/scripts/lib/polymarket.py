@@ -12,8 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus, urlencode
 
-from . import http
-from .query_type import detect_query_type
+from . import http, log
 from .relevance import LOW_SIGNAL_QUERY_TOKENS, token_overlap_relevance
 
 GAMMA_SEARCH_URL = "https://gamma-api.polymarket.com/public-search"
@@ -34,10 +33,7 @@ RESULT_CAP = {
 
 
 def _log(msg: str):
-    """Log to stderr (only in TTY mode to avoid cluttering Claude Code output)."""
-    if sys.stderr.isatty():
-        sys.stderr.write(f"[PM] {msg}\n")
-        sys.stderr.flush()
+    log.source_log("PM", msg)
 
 
 def _extract_core_subject(topic: str) -> str:
@@ -75,7 +71,7 @@ def _expand_queries(topic: str) -> List[str]:
     words = core.split()
     if len(words) >= 2:
         for word in words:
-            if len(word) > 1 and word.lower() not in LOW_SIGNAL_QUERY_TOKENS:
+            if len(word) > 1 and word.lower() not in LOW_SIGNAL_QUERY_TOKENS and word.lower() not in _NOISE_WORDS:
                 queries.append(word)
 
     # Add the full topic if different from core
@@ -94,6 +90,179 @@ def _expand_queries(topic: str) -> List[str]:
 
 
 _GENERIC_TAGS = frozenset({"sports", "politics", "crypto", "science", "culture", "pop culture"})
+
+# Words that are too generic to serve as the sole topic-match signal.
+# If ALL core words from the topic are in this set, we skip filtering (can't meaningfully filter).
+# But if some words are informative and some are generic, we require at least one informative word.
+_NOISE_WORDS = frozenset({
+    # Articles, prepositions, conjunctions
+    "the", "a", "an", "in", "on", "at", "of", "for", "and", "or", "to", "is", "are",
+    "was", "were", "will", "be", "by", "with", "from", "as", "it", "its", "not", "no",
+    "but", "if", "so", "do", "has", "had", "have", "this", "that", "what", "who",
+    # Directional / geographic terms that cause false matches
+    "west", "east", "north", "south", "central", "southern", "northern", "eastern", "western",
+    # Common sports / category terms
+    "champion", "championship", "league", "division", "conference", "cup", "series",
+    "team", "game", "match", "season", "win", "winner", "finals",
+    # Common geographic / place nouns that cause false matches
+    # "club" -> Athletic Club, Racing Club; "island" -> Epstein's Island, Rhode Island
+    "club", "island", "city", "park", "hill", "lake", "bay", "beach", "valley",
+    "river", "mountain", "county", "state", "village", "town", "point", "creek",
+    "springs", "heights", "ridge", "bridge", "harbor", "port", "station", "center",
+    "square", "field", "forest", "garden", "tower", "school", "church", "camp",
+    "ranch", "crossing", "shore", "rock", "summit", "falls", "grove", "haven",
+    # Generic tech terms that match too broadly on Polymarket
+    # "cli" -> any CLI tool market; "mcp" -> protocol markets; "ai" -> every AI market
+    "cli", "mcp", "protocol", "tool", "app", "code", "model", "ai", "api",
+    "software", "plugin", "skill", "agent", "bot", "search", "research",
+    # Generic prediction market terms
+    "market", "odds", "prediction", "forecast", "chance", "probability",
+    # Comparison-query conjunctions — should not count as informative filter tokens
+    # when the topic is "X vs Y vs Z"
+    "vs", "versus",
+})
+
+
+def _passes_topic_filter(topic: str, event_title: str) -> bool:
+    """Check if event title contains enough informative words from the topic.
+
+    Prevents noise like "Meek Mill" matching "Mill.com food recycler" by requiring
+    proportional word overlap. For topics with 3+ informative words, at least 2 must
+    match. For shorter topics, 1 match suffices (existing behavior).
+
+    Returns True if the event should be kept, False if it should be filtered out.
+    """
+    core = _extract_core_subject(topic).lower()
+    core_words = [w for w in re.sub(r"[^\w\s]", " ", core).split() if len(w) > 1]
+
+    if not core_words:
+        return True  # No words to check against
+
+    # Split into informative vs generic
+    informative = [w for w in core_words if w not in _NOISE_WORDS]
+
+    # If ALL words are generic, we can't meaningfully filter — keep everything
+    if not informative:
+        return True
+
+    # Normalize the title for matching
+    title_lower = " ".join(re.sub(r"[^\w\s]", " ", event_title.lower()).split())
+    title_words = set(title_lower.split())
+
+    # Count how many informative words appear in the title
+    match_count = 0
+    for word in informative:
+        # Check as whole word in the title word set
+        if word in title_words:
+            match_count += 1
+            continue
+        # Also check as substring for compound words (e.g., "kanye" in "kanyewest")
+        if len(word) >= 4 and word in title_lower:
+            match_count += 1
+
+    # For topics with 3+ informative words, require at least 2 matches.
+    # This prevents single-word false positives like "mill" in "Meek Mill"
+    # when the topic is "Mill.com food recycler" (3 informative words).
+    min_matches = 2 if len(informative) >= 3 else 1
+
+    return match_count >= min_matches
+
+
+def _passes_any_informative_word(topic: str, event_title: str) -> bool:
+    """Looser variant of _passes_topic_filter that keeps an item if ANY
+    informative word from the topic appears in the title.
+
+    Designed for post-merge validation of comparison topics (e.g., "OpenClaw vs
+    Hermes vs Paperclip"), where a market mentioning just one of the entities
+    is still on-topic. The stricter _passes_topic_filter (min_matches=2 for
+    3+ informative words) is correct for single-entity topics like "Mill.com
+    food recycler" but drops legitimate single-entity comparison results.
+    """
+    core = _extract_core_subject(topic).lower()
+    core_words = [w for w in re.sub(r"[^\w\s]", " ", core).split() if len(w) > 1]
+    if not core_words:
+        return True
+    informative = [w for w in core_words if w not in _NOISE_WORDS]
+    if not informative:
+        return True
+
+    title_lower = " ".join(re.sub(r"[^\w\s]", " ", event_title.lower()).split())
+    title_words = set(title_lower.split())
+
+    for word in informative:
+        if word in title_words:
+            return True
+        if len(word) >= 4 and word in title_lower:
+            return True
+    return False
+
+
+def filter_items_against_topic(topic: str, items: List[Any]) -> List[Any]:
+    """Drop items whose title shares no informative word with the original topic.
+
+    Called post-merge from pipeline.py so per-entity subquery results for
+    comparison topics get re-validated against the ORIGINAL full topic before
+    landing in the footer. Prevents noise like WTI crude oil or Elon tweet
+    markets from surviving a loose "Hermes" single-entity subquery match.
+
+    Uses the looser _passes_any_informative_word rule (ANY entity name match
+    is sufficient) so a market mentioning just one of several compared entities
+    still counts as on-topic.
+
+    Accepts a list of either raw dicts (with 'title') or SourceItem-like objects
+    (with .title attribute). Returns the filtered list in the same order.
+    """
+    if not topic:
+        return items
+
+    filtered = []
+    for item in items:
+        title = getattr(item, "title", None)
+        if title is None and isinstance(item, dict):
+            title = item.get("title", "")
+        title = title or ""
+
+        if _passes_any_informative_word(topic, title):
+            filtered.append(item)
+
+    dropped = len(items) - len(filtered)
+    if dropped:
+        _log(f"Post-merge topic filter dropped {dropped} Polymarket items against full topic '{topic}'")
+
+    return filtered
+
+
+def filter_items_against_keywords(items: List[Any], keywords: List[str]) -> List[Any]:
+    """Keep only items whose title contains at least one keyword (case-insensitive).
+
+    Intended for disambiguating ambiguous single-token topics like 'Warriors'
+    via --polymarket-keywords (e.g., 'nba,gsw,golden-state') to filter out
+    Glasgow Warriors rugby, Honor of Kings Rogue Warriors markets that share
+    the 'Warriors' token but are not the target entity.
+    """
+    if not keywords:
+        return items
+    normalized_keywords = [kw.strip().lower() for kw in keywords if kw and kw.strip()]
+    if not normalized_keywords:
+        return items
+
+    filtered = []
+    for item in items:
+        title = getattr(item, "title", None)
+        if title is None and isinstance(item, dict):
+            title = item.get("title", "")
+        title = (title or "").lower()
+        if any(kw in title for kw in normalized_keywords):
+            filtered.append(item)
+
+    dropped = len(items) - len(filtered)
+    if dropped:
+        _log(
+            f"Keyword filter dropped {dropped} Polymarket items; "
+            f"kept {len(filtered)} matching {normalized_keywords}"
+        )
+
+    return filtered
 
 
 def _extract_domain_queries(topic: str, events: List[Dict]) -> List[str]:
@@ -128,6 +297,14 @@ def _extract_domain_queries(topic: str, events: List[Dict]) -> List[str]:
     ][:2]
 
     return domain_queries
+
+
+def _infer_query_intent(topic: str) -> str:
+    """Tiny local fallback for Polymarket search tuning only."""
+    text = topic.lower().strip()
+    if re.search(r"\b(predict|prediction|odds|forecast|chance|probability|will .* win)\b", text):
+        return "prediction"
+    return "breaking_news"
 
 
 def _search_single_query(query: str, page: int = 1) -> Dict[str, Any]:
@@ -328,7 +505,7 @@ def _compute_text_similarity(topic: str, title: str, outcomes: List[str] = None)
     if core in title_lower:
         return 1.0
 
-    query_type = detect_query_type(topic)
+    query_type = _infer_query_intent(topic)
     title_score = token_overlap_relevance(core, title)
     best_score = title_score
 
@@ -392,6 +569,7 @@ def parse_polymarket_response(response: Dict[str, Any], topic: str = "") -> List
     events = response.get("events", [])
     items = []
 
+    filtered_count = 0
     for i, event in enumerate(events):
         event_id = event.get("id", "")
         title = event.get("title", "")
@@ -401,6 +579,12 @@ def parse_polymarket_response(response: Dict[str, Any], topic: str = "") -> List
         if event.get("closed", False):
             continue
         if not event.get("active", True):
+            continue
+
+        # Filter: skip events that don't match the topic's core subject
+        # This prevents "NFC West" from matching a "Kanye West" search
+        if topic and not _passes_topic_filter(topic, title):
+            filtered_count += 1
             continue
 
         # Get markets for this event
@@ -574,7 +758,29 @@ def parse_polymarket_response(response: Dict[str, Any], topic: str = "") -> List
             "why_relevant": f"Prediction market: {title[:60]}",
         })
 
+    if filtered_count:
+        _log(f"Filtered {filtered_count} noise events (topic: '{topic}')")
+
     # Sort by relevance (quality-signal ranked) and apply cap
     items.sort(key=lambda x: x["relevance"], reverse=True)
+
+    # Drop ALL results if nothing is genuinely on-topic.
+    # If the best item's relevance is below the threshold, the Gamma API
+    # returned only tangential matches (e.g., "Anthropic best AI model"
+    # for a "CLI vs MCP" query). Better to show 0 than noise.
+    _MIN_RELEVANCE = 0.15
+    if items and items[0]["relevance"] < _MIN_RELEVANCE:
+        _log(f"All {len(items)} Polymarket results below relevance threshold "
+             f"({items[0]['relevance']:.2f} < {_MIN_RELEVANCE}), dropping all")
+        return []
+
+    # Per-item floor: drop individual noise items even if the best item passed
+    _ITEM_MIN_RELEVANCE = 0.10
+    before_count = len(items)
+    items = [i for i in items if i["relevance"] >= _ITEM_MIN_RELEVANCE]
+    dropped = before_count - len(items)
+    if dropped:
+        _log(f"Dropped {dropped} Polymarket items below per-item relevance floor ({_ITEM_MIN_RELEVANCE})")
+
     cap = response.get("_cap", len(items))
     return items[:cap]

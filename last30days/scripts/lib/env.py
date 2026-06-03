@@ -1,12 +1,16 @@
 """Environment and API key management for last30days skill."""
 
+from __future__ import annotations
+
 import base64
+import binascii
 import json
 import os
+import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Dict, Any, Literal
+from typing import Any, Literal
 
 # Allow override via environment variable for testing
 # Set LAST30DAYS_CONFIG_DIR="" for clean/no-config mode
@@ -25,6 +29,23 @@ else:
 
 CODEX_AUTH_FILE = Path(os.environ.get("CODEX_AUTH_FILE", str(Path.home() / ".codex" / "auth.json")))
 
+# macOS Keychain integration: items stored with this service prefix are picked
+# up automatically on Darwin as the lowest-priority credential source.
+# Example: `security add-generic-password -a "$USER" -s last30days-XAI_API_KEY -w "xai-..."`.
+KEYCHAIN_SERVICE_PREFIX = "last30days-"
+
+# Single source of truth for which credentials the Keychain loader looks up.
+# The setup-keychain.sh helper mirrors this list and is held in sync via
+# tests/test_env_keychain.py::test_keychain_keys_match_setup_script.
+KEYCHAIN_KEYS = (
+    "OPENAI_API_KEY", "XAI_API_KEY", "GOOGLE_API_KEY", "GEMINI_API_KEY",
+    "GOOGLE_GENAI_API_KEY", "SCRAPECREATORS_API_KEY", "APIFY_API_TOKEN",
+    "AUTH_TOKEN", "CT0", "BSKY_HANDLE", "BSKY_APP_PASSWORD",
+    "TRUTHSOCIAL_TOKEN", "BRAVE_API_KEY", "EXA_API_KEY", "SERPER_API_KEY",
+    "OPENROUTER_API_KEY", "PARALLEL_API_KEY", "XQUIK_API_KEY",
+    "XIAOHONGSHU_API_BASE",
+)
+
 AuthSource = Literal["api_key", "codex", "none"]
 AuthStatus = Literal["ok", "missing", "expired", "missing_account_id"]
 
@@ -40,30 +61,34 @@ AUTH_STATUS_MISSING_ACCOUNT_ID: AuthStatus = "missing_account_id"
 
 @dataclass(frozen=True)
 class OpenAIAuth:
-    token: Optional[str]
+    token: str | None
     source: AuthSource
     status: AuthStatus
-    account_id: Optional[str]
+    account_id: str | None
     codex_auth_file: str
 
 
 def _check_file_permissions(path: Path) -> None:
     """Warn to stderr if a secrets file has overly permissive permissions."""
+    if os.name == "nt":
+        # Windows reports synthesized POSIX mode bits that do not reflect NTFS ACLs.
+        return
+
     try:
         mode = path.stat().st_mode
         # Check if group or other can read (bits 0o044)
         if mode & 0o044:
-            import sys
             sys.stderr.write(
                 f"[last30days] WARNING: {path} is readable by other users. "
                 f"Run: chmod 600 {path}\n"
             )
             sys.stderr.flush()
-    except OSError:
-        pass
+    except OSError as exc:
+        sys.stderr.write(f"[last30days] WARNING: could not stat {path}: {exc}\n")
+        sys.stderr.flush()
 
 
-def load_env_file(path: Path) -> Dict[str, str]:
+def load_env_file(path: Path) -> dict[str, str]:
     """Load environment variables from a file."""
     env = {}
     if not path or not path.exists():
@@ -87,7 +112,47 @@ def load_env_file(path: Path) -> Dict[str, str]:
     return env
 
 
-def _decode_jwt_payload(token: str) -> Optional[Dict[str, Any]]:
+def _load_keychain(keys: list[str]) -> dict[str, str]:
+    """Load credentials from macOS Keychain (no-op on other platforms).
+
+    Each key is looked up as a generic password with service name
+    ``f"{KEYCHAIN_SERVICE_PREFIX}{key}"`` for the current user. Missing items
+    and lookup failures are silent — Keychain is the lowest-priority source
+    and is meant to be additive over `.env` files and process environment.
+    """
+    import platform
+    if platform.system() != "Darwin":
+        return {}
+
+    import shutil
+    security = shutil.which("security")
+    if not security:
+        return {}
+
+    import subprocess
+    import pwd
+    # USER can be unset under sudo, in Docker without --env USER, or in some CI
+    # runners; fall back to the OS user record so lookups still match items
+    # stored by setup-keychain.sh (which uses $USER).
+    user = os.environ.get("USER") or pwd.getpwuid(os.getuid()).pw_name
+    env: dict[str, str] = {}
+    for key in keys:
+        try:
+            result = subprocess.run(
+                [security, "find-generic-password",
+                 "-a", user,
+                 "-s", f"{KEYCHAIN_SERVICE_PREFIX}{key}",
+                 "-w"],
+                capture_output=True, text=True, timeout=5,
+            )
+        except (subprocess.TimeoutExpired, OSError):
+            continue
+        if result.returncode == 0 and result.stdout.strip():
+            env[key] = result.stdout.strip()
+    return env
+
+
+def _decode_jwt_payload(token: str) -> dict[str, Any] | None:
     """Decode JWT payload without verification."""
     try:
         parts = token.split(".")
@@ -97,7 +162,9 @@ def _decode_jwt_payload(token: str) -> Optional[Dict[str, Any]]:
         pad = "=" * (-len(payload_b64) % 4)
         decoded = base64.urlsafe_b64decode(payload_b64 + pad)
         return json.loads(decoded.decode("utf-8"))
-    except Exception:
+    except (json.JSONDecodeError, UnicodeDecodeError, binascii.Error, IndexError) as exc:
+        sys.stderr.write(f"[last30days] WARNING: malformed JWT token: {exc}\n")
+        sys.stderr.flush()
         return None
 
 
@@ -112,7 +179,7 @@ def _token_expired(token: str, leeway_seconds: int = 60) -> bool:
     return exp <= (time.time() + leeway_seconds)
 
 
-def extract_chatgpt_account_id(access_token: str) -> Optional[str]:
+def extract_chatgpt_account_id(access_token: str) -> str | None:
     """Extract chatgpt_account_id from JWT token."""
     payload = _decode_jwt_payload(access_token)
     if not payload:
@@ -123,18 +190,22 @@ def extract_chatgpt_account_id(access_token: str) -> Optional[str]:
     return None
 
 
-def load_codex_auth(path: Path = CODEX_AUTH_FILE) -> Dict[str, Any]:
+def load_codex_auth(path: Path = CODEX_AUTH_FILE) -> dict[str, Any]:
     """Load Codex auth JSON."""
     if not path.exists():
         return {}
     try:
         with open(path, "r") as f:
             return json.load(f)
-    except Exception:
+    except json.JSONDecodeError:
+        sys.stderr.write(
+            f"[last30days] WARNING: {path} exists but contains invalid JSON -- ignoring\n"
+        )
+        sys.stderr.flush()
         return {}
 
 
-def get_codex_access_token() -> tuple[Optional[str], str]:
+def get_codex_access_token() -> tuple[str | None, str]:
     """Get Codex access token from auth.json.
 
     Returns:
@@ -155,7 +226,7 @@ def get_codex_access_token() -> tuple[Optional[str], str]:
     return token, AUTH_STATUS_OK
 
 
-def get_openai_auth(file_env: Dict[str, str]) -> OpenAIAuth:
+def get_openai_auth(file_env: dict[str, str]) -> OpenAIAuth:
     """Resolve OpenAI auth from API key or Codex login."""
     api_key = os.environ.get('OPENAI_API_KEY') or file_env.get('OPENAI_API_KEY')
     if api_key:
@@ -167,35 +238,20 @@ def get_openai_auth(file_env: Dict[str, str]) -> OpenAIAuth:
             codex_auth_file=str(CODEX_AUTH_FILE),
         )
 
-    codex_token, codex_status = get_codex_access_token()
-    if codex_token:
-        account_id = extract_chatgpt_account_id(codex_token)
-        if account_id:
-            return OpenAIAuth(
-                token=codex_token,
-                source=AUTH_SOURCE_CODEX,
-                status=AUTH_STATUS_OK,
-                account_id=account_id,
-                codex_auth_file=str(CODEX_AUTH_FILE),
-            )
-        return OpenAIAuth(
-            token=None,
-            source=AUTH_SOURCE_CODEX,
-            status=AUTH_STATUS_MISSING_ACCOUNT_ID,
-            account_id=None,
-            codex_auth_file=str(CODEX_AUTH_FILE),
-        )
+    # Codex auth (chatgpt.com backend) intentionally skipped.
+    # The endpoint is unstable and causes crashes when the token expires.
+    # Users who want OpenAI should set OPENAI_API_KEY explicitly.
 
     return OpenAIAuth(
         token=None,
         source=AUTH_SOURCE_NONE,
-        status=codex_status,
+        status=AUTH_STATUS_MISSING,
         account_id=None,
         codex_auth_file=str(CODEX_AUTH_FILE),
     )
 
 
-def _find_project_env() -> Optional[Path]:
+def _find_project_env() -> Path | None:
     """Find per-project .env by walking up from cwd.
 
     Searches for .claude/last30days.env in each parent directory,
@@ -212,13 +268,14 @@ def _find_project_env() -> Optional[Path]:
     return None
 
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> dict[str, Any]:
     """Load configuration from multiple sources.
 
     Priority (highest wins):
       1. Environment variables (os.environ)
       2. .claude/last30days.env (per-project config)
       3. ~/.config/last30days/.env (global config)
+      4. macOS Keychain items prefixed ``last30days-`` (Darwin only)
     """
     # Load from global config file
     file_env = load_env_file(CONFIG_FILE) if CONFIG_FILE else {}
@@ -227,8 +284,13 @@ def get_config() -> Dict[str, Any]:
     project_env_path = _find_project_env()
     project_env = load_env_file(project_env_path) if project_env_path else {}
 
-    # Merge: project overrides global
+    # Merge file sources: project > global
     merged_env = {**file_env, **project_env}
+
+    # Keychain is the lowest-priority source (Darwin only; no-op elsewhere).
+    # Loaded before openai_auth so OPENAI_API_KEY can come from Keychain too.
+    keychain_env = _load_keychain(list(KEYCHAIN_KEYS))
+    merged_env = {**keychain_env, **merged_env}
 
     openai_auth = get_openai_auth(merged_env)
 
@@ -246,14 +308,14 @@ def get_config() -> Dict[str, Any]:
         ('GOOGLE_API_KEY', None),
         ('GEMINI_API_KEY', None),
         ('GOOGLE_GENAI_API_KEY', None),
-        ('OPENROUTER_API_KEY', None),
-        ('PARALLEL_API_KEY', None),
-        ('BRAVE_API_KEY', None),
         ('XIAOHONGSHU_API_BASE', None),
-        ('GEMINI_MODEL', None),
-        ('OPENAI_MODEL_POLICY', 'auto'),
+        ('LAST30DAYS_REASONING_PROVIDER', 'auto'),
+        ('LAST30DAYS_PLANNER_MODEL', None),
+        ('LAST30DAYS_RERANK_MODEL', None),
+        ('LAST30DAYS_X_MODEL', None),
+        ('LAST30DAYS_X_BACKEND', None),
+        ('LAST30DAYS_STORE', None),
         ('OPENAI_MODEL_PIN', None),
-        ('XAI_MODEL_POLICY', 'latest'),
         ('XAI_MODEL_PIN', None),
         ('SCRAPECREATORS_API_KEY', None),
         ('APIFY_API_TOKEN', None),
@@ -261,21 +323,138 @@ def get_config() -> Dict[str, Any]:
         ('CT0', None),
         ('BSKY_HANDLE', None),
         ('BSKY_APP_PASSWORD', None),
+        ('BSKY_SEARCH_HOST', None),
         ('TRUTHSOCIAL_TOKEN', None),
+        ('BRAVE_API_KEY', None),
+        ('EXA_API_KEY', None),
+        ('SERPER_API_KEY', None),
+        ('OPENROUTER_API_KEY', None),
+        ('PARALLEL_API_KEY', None),
+        ('XQUIK_API_KEY', None),
+        ('FROM_BROWSER', None),
+        ('SETUP_COMPLETE', None),
+        ('INCLUDE_SOURCES', ''),
+        ('EXCLUDE_SOURCES', ''),
+        ('LAST30DAYS_YOUTUBE_SSH_HOST', None),
+        ('LAST30DAYS_TRANSCRIPT_TIMEOUT', None),
     ]
 
     for key, default in keys:
         config[key] = os.environ.get(key) or merged_env.get(key, default)
 
-    # Track which config source was used
+    # Backward-compat: ScrapeCreators' own examples and tutorials use the
+    # SCRAPE_CREATORS_API_KEY spelling (with underscore between SCRAPE and
+    # CREATORS). Accept that form too so users who follow the vendor's docs
+    # don't silently end up with has_scrapecreators=False. Canonical name
+    # wins when both are set.
+    if not config.get('SCRAPECREATORS_API_KEY'):
+        legacy = os.environ.get('SCRAPE_CREATORS_API_KEY') or merged_env.get('SCRAPE_CREATORS_API_KEY')
+        if legacy:
+            config['SCRAPECREATORS_API_KEY'] = legacy
+
+    # Multi-key rotation: comma-separated SCRAPECREATORS_API_KEY round-robins
+    # via random.choice per run. Originally added in #268, accidentally dropped
+    # in v3.0.6, restored here.
+    sc_key_raw = config.get('SCRAPECREATORS_API_KEY') or ''
+    if ',' in sc_key_raw:
+        import random
+        sc_keys = [k.strip() for k in sc_key_raw.split(',') if k.strip()]
+        config['SCRAPECREATORS_API_KEY'] = random.choice(sc_keys) if sc_keys else ''
+
+    # Track which config source was used (highest-priority file source wins
+    # the label; keychain is only reported when nothing else is configured).
     if project_env_path:
         config['_CONFIG_SOURCE'] = f'project:{project_env_path}'
     elif CONFIG_FILE and CONFIG_FILE.exists():
         config['_CONFIG_SOURCE'] = f'global:{CONFIG_FILE}'
+    elif keychain_env:
+        config['_CONFIG_SOURCE'] = 'keychain'
     else:
         config['_CONFIG_SOURCE'] = 'env_only'
 
+    # Extract browser credentials if configured
+    browser_creds = extract_browser_credentials(config)
+    for key, value in browser_creds.items():
+        if not config.get(key):
+            config[key] = value
+            config[f"_{key}_SOURCE"] = "browser"
+
     return config
+
+
+# ---------------------------------------------------------------------------
+# Browser cookie extraction
+# ---------------------------------------------------------------------------
+
+COOKIE_DOMAINS: dict[str, dict[str, Any]] = {
+    "x": {
+        "domain": ".x.com",
+        "cookies": ["auth_token", "ct0"],
+        "mapping": {"auth_token": "AUTH_TOKEN", "ct0": "CT0"},
+    },
+    "truthsocial": {
+        "domain": ".truthsocial.com",
+        "cookies": ["_session_id"],
+        "mapping": {"_session_id": "TRUTHSOCIAL_TOKEN"},
+    },
+}
+
+
+def extract_browser_credentials(config: dict[str, Any]) -> dict[str, str]:
+    """Extract auth cookies from local browsers.
+
+    Default behavior (FROM_BROWSER unset): tries Firefox and Safari only.
+    These read local files silently with no system dialogs.  Chrome is
+    skipped because ``security find-generic-password`` triggers a macOS
+    Keychain prompt that cannot be reliably suppressed.
+
+    Set ``FROM_BROWSER=auto`` to also try Chrome (accepts the dialog),
+    or ``FROM_BROWSER=off`` to disable extraction entirely.
+    """
+    from_browser = (config.get("FROM_BROWSER") or "").strip().lower()
+    if from_browser == "off":
+        return {}
+    try:
+        from . import cookie_extract
+    except ImportError:
+        return {}
+    # Determine which browsers to try
+    if from_browser in ("firefox", "chrome", "safari"):
+        browsers = [from_browser]
+    elif from_browser == "auto":
+        browsers = ["firefox", "safari", "chrome"]
+    else:
+        # Default: silent browsers only (no Keychain dialog)
+        browsers = ["firefox", "safari"]
+    extracted: dict[str, str] = {}
+    for _service, spec in COOKIE_DOMAINS.items():
+        if all(config.get(env_key) for env_key in spec["mapping"].values()):
+            continue
+        for browser in browsers:
+            try:
+                cookies = cookie_extract.extract_cookies(browser, spec["domain"], spec["cookies"])
+            except Exception:
+                continue
+            if cookies:
+                for cookie_name, env_key in spec["mapping"].items():
+                    if cookie_name in cookies and not config.get(env_key):
+                        extracted[env_key] = cookies[cookie_name]
+                break  # Found cookies for this service, stop trying browsers
+    return extracted
+
+
+def get_x_source_with_method(config: dict[str, Any]) -> tuple[str | None, str]:
+    """Return (source, method) for X search, where method describes the auth origin."""
+    if config.get("XAI_API_KEY"):
+        return "xai", "xai"
+    if config.get("AUTH_TOKEN") and config.get("CT0"):
+        method = config.get("_AUTH_TOKEN_SOURCE", "env")
+        return "bird", method
+    # Fall back to xurl CLI (official X API v2, OAuth2, free developer app)
+    from . import xurl_x
+    if xurl_x.is_available():
+        return "xurl", "oauth2"
+    return None, "none"
 
 
 def config_exists() -> bool:
@@ -287,184 +466,56 @@ def config_exists() -> bool:
     return False
 
 
-def is_reddit_available(config: Dict[str, Any]) -> bool:
-    """Check if Reddit search is available.
-
-    Reddit can use either ScrapeCreators (preferred) or OpenAI.
-    """
-    has_sc = bool(config.get('SCRAPECREATORS_API_KEY'))
-    has_openai = bool(config.get('OPENAI_API_KEY')) and config.get('OPENAI_AUTH_STATUS') == AUTH_STATUS_OK
-    return has_sc or has_openai
-
-
-def get_reddit_source(config: Dict[str, Any]) -> Optional[str]:
+def get_reddit_source(config: dict[str, Any]) -> str | None:
     """Determine which Reddit backend to use.
 
-    Priority: ScrapeCreators (cheaper, faster) > OpenAI (legacy)
-
-    Returns: 'scrapecreators', 'openai', or None
+    Returns: 'scrapecreators' or None
     """
     if config.get('SCRAPECREATORS_API_KEY'):
         return 'scrapecreators'
-    if config.get('OPENAI_API_KEY') and config.get('OPENAI_AUTH_STATUS') == AUTH_STATUS_OK:
-        return 'openai'
     return None
 
 
-def get_available_sources(config: Dict[str, Any]) -> str:
-    """Determine which sources are available.
+def get_x_source(config: dict[str, Any]) -> str | None:
+    """Determine the best available explicit X/Twitter source.
 
-    Returns: 'all', 'both', 'reddit', 'reddit-web', 'x', 'x-web', 'web', or 'none'
-    """
-    # Reddit is available via public JSON fallback even without OpenAI auth.
-    has_reddit = True
-    has_xai = bool(config.get('XAI_API_KEY'))
-    has_web = has_web_search_keys(config)
+    Priority: explicit backend pin, then xAI, then Bird with explicit cookies.
 
-    if has_reddit and has_xai:
-        return 'all' if has_web else 'both'
-    elif has_reddit:
-        return 'reddit-web' if has_web else 'reddit'
-    return 'web' if has_web else 'none'
-
-
-def has_web_search_keys(config: Dict[str, Any]) -> bool:
-    """Check if any web search API keys are configured."""
-    return bool(config.get('OPENROUTER_API_KEY') or config.get('PARALLEL_API_KEY') or config.get('BRAVE_API_KEY'))
-
-
-def get_web_search_source(config: Dict[str, Any]) -> Optional[str]:
-    """Determine the best available web search backend.
-
-    Priority: Parallel AI > Brave > OpenRouter/Sonar Pro
-
-    Returns: 'parallel', 'brave', 'openrouter', or None
-    """
-    if config.get('PARALLEL_API_KEY'):
-        return 'parallel'
-    if config.get('BRAVE_API_KEY'):
-        return 'brave'
-    if config.get('OPENROUTER_API_KEY'):
-        return 'openrouter'
-    return None
-
-
-def get_missing_keys(config: Dict[str, Any]) -> str:
-    """Determine which sources are missing (accounting for Bird).
-
-    Returns: 'all', 'both', 'reddit', 'x', 'web', or 'none'
-    """
-    has_reddit = True
-    has_xai = bool(config.get('XAI_API_KEY'))
-    has_web = has_web_search_keys(config)
-
-    # Check if Bird provides X access (import here to avoid circular dependency)
-    from . import bird_x
-    has_bird = bird_x.is_bird_installed() and bird_x.is_bird_authenticated()
-
-    has_x = has_xai or has_bird
-
-    if has_reddit and has_x and has_web:
-        return 'none'
-    elif has_reddit and has_x:
-        return 'web'  # Missing web search keys
-    elif has_reddit and has_web:
-        return 'x'  # Missing X source
-    elif has_reddit:
-        return 'x'  # Missing X source (and possibly web)
-    return 'all'
-
-
-def validate_sources(requested: str, available: str, include_web: bool = False) -> tuple[str, Optional[str]]:
-    """Validate requested sources against available keys.
-
-    Args:
-        requested: 'auto', 'reddit', 'x', 'both', or 'web'
-        available: Result from get_available_sources()
-        include_web: If True, add WebSearch to available sources
-
-    Returns:
-        Tuple of (effective_sources, error_message)
-    """
-    has_reddit = available in ('reddit', 'both', 'reddit-web', 'all')
-    has_x = available in ('x', 'both', 'x-web', 'all')
-    has_web = available in ('web', 'reddit-web', 'x-web', 'all')
-
-    if requested == 'auto':
-        if has_reddit and has_x:
-            base = 'both'
-        elif has_reddit:
-            base = 'reddit'
-        elif has_x:
-            base = 'x'
-        elif has_web:
-            base = 'web'
-        else:
-            return 'none', "No sources are available."
-
-        if include_web:
-            if base == 'both':
-                return 'all', None
-            if base == 'reddit':
-                return 'reddit-web', None
-            if base == 'x':
-                return 'x-web', None
-        return base, None
-
-    if requested == 'web':
-        return 'web', None
-
-    if requested == 'both':
-        if not (has_reddit and has_x):
-            return 'none', "Requested both sources but X source is missing."
-        if include_web:
-            return 'all', None
-        return 'both', None
-
-    if requested == 'reddit':
-        if not has_reddit:
-            return 'none', "Requested Reddit but only xAI key is available."
-        if include_web:
-            return 'reddit-web', None
-        return 'reddit', None
-
-    if requested == 'x':
-        if not has_x:
-            return 'none', "Requested X but no X source is available (need Bird auth or XAI_API_KEY)."
-        if include_web:
-            return 'x-web', None
-        return 'x', None
-
-    return requested, None
-
-
-def get_x_source(config: Dict[str, Any]) -> Optional[str]:
-    """Determine the best available X/Twitter source.
-
-    Priority: Bird (free) → xAI (paid API)
-
-    Keep X selection limited to documented, verified search backends.
+    Browser-cookie probing is intentionally not used here. Automatic Keychain
+    access causes popups during normal pipeline runs. Bird is only considered
+    available when AUTH_TOKEN and CT0 are present explicitly.
 
     Args:
         config: Configuration dict from get_config()
 
     Returns:
-        'bird' if Bird is installed and authenticated,
+        'bird' if Bird is installed and explicit cookies are configured,
         'xai' if XAI_API_KEY is configured,
+        'xurl' if xurl CLI is installed and authenticated,
         None if no X source available.
     """
     # Import here to avoid circular dependency
     from . import bird_x
 
-    # Check Bird first (free option)
-    if bird_x.is_bird_installed():
-        username = bird_x.is_bird_authenticated()
-        if username:
-            return 'bird'
+    preferred = (config.get('LAST30DAYS_X_BACKEND') or '').lower()
+    has_bird_creds = bool(config.get('AUTH_TOKEN') and config.get('CT0'))
+    if has_bird_creds:
+        bird_x.set_credentials(config.get('AUTH_TOKEN'), config.get('CT0'))
 
-    # Fall back to xAI if key exists
+    if preferred == 'xai':
+        return 'xai' if config.get('XAI_API_KEY') else None
+    if preferred == 'bird':
+        return 'bird' if has_bird_creds and bird_x.is_bird_installed() else None
+
     if config.get('XAI_API_KEY'):
         return 'xai'
+    if has_bird_creds and bird_x.is_bird_installed():
+        return 'bird'
+
+    # Fall back to xurl CLI (official X API v2, OAuth2, free developer app)
+    from . import xurl_x
+    if xurl_x.is_available():
+        return 'xurl'
 
     return None
 
@@ -475,6 +526,37 @@ def is_ytdlp_available() -> bool:
     return youtube_yt.is_ytdlp_installed()
 
 
+def is_youtube_comments_available(config: dict[str, Any]) -> bool:
+    """Check if YouTube comment enrichment is available.
+
+    Requires SCRAPECREATORS_API_KEY AND youtube_comments in INCLUDE_SOURCES.
+    """
+    if not config.get('SCRAPECREATORS_API_KEY'):
+        return False
+    include = _parse_include_sources(config)
+    return 'youtube_comments' in include
+
+
+def is_tiktok_comments_available(config: dict[str, Any]) -> bool:
+    """Check if TikTok comment enrichment is available.
+
+    Requires SCRAPECREATORS_API_KEY AND tiktok_comments in INCLUDE_SOURCES.
+    Mirrors the youtube_comments opt-in pattern.
+    """
+    if not config.get('SCRAPECREATORS_API_KEY'):
+        return False
+    include = _parse_include_sources(config)
+    return 'tiktok_comments' in include
+
+
+def is_youtube_sc_available(config: dict[str, Any]) -> bool:
+    """Check if ScrapeCreators YouTube search fallback is available.
+
+    Used when yt-dlp is not installed or fails.
+    """
+    return bool(config.get('SCRAPECREATORS_API_KEY'))
+
+
 def is_hackernews_available() -> bool:
     """Check if Hacker News source is available.
 
@@ -483,7 +565,7 @@ def is_hackernews_available() -> bool:
     return True
 
 
-def is_bluesky_available(config: Dict[str, Any]) -> bool:
+def is_bluesky_available(config: dict[str, Any]) -> bool:
     """Check if Bluesky source is available.
 
     Requires BSKY_HANDLE and BSKY_APP_PASSWORD (app password from bsky.app/settings).
@@ -491,7 +573,7 @@ def is_bluesky_available(config: Dict[str, Any]) -> bool:
     return bool(config.get('BSKY_HANDLE') and config.get('BSKY_APP_PASSWORD'))
 
 
-def is_truthsocial_available(config: Dict[str, Any]) -> bool:
+def is_truthsocial_available(config: dict[str, Any]) -> bool:
     """Check if Truth Social source is available.
 
     Requires TRUTHSOCIAL_TOKEN (bearer token from browser dev tools).
@@ -507,7 +589,7 @@ def is_polymarket_available() -> bool:
     return True
 
 
-def is_tiktok_available(config: Dict[str, Any]) -> bool:
+def is_tiktok_available(config: dict[str, Any]) -> bool:
     """Check if TikTok source is available (ScrapeCreators or legacy Apify).
 
     Returns True if SCRAPECREATORS_API_KEY or APIFY_API_TOKEN is set.
@@ -515,12 +597,29 @@ def is_tiktok_available(config: Dict[str, Any]) -> bool:
     return bool(config.get('SCRAPECREATORS_API_KEY') or config.get('APIFY_API_TOKEN'))
 
 
-def get_tiktok_token(config: Dict[str, Any]) -> str:
+def get_tiktok_token(config: dict[str, Any]) -> str:
     """Get TikTok API token, preferring ScrapeCreators over legacy Apify."""
     return config.get('SCRAPECREATORS_API_KEY') or config.get('APIFY_API_TOKEN') or ''
 
 
-def is_instagram_available(config: Dict[str, Any]) -> bool:
+def _parse_include_sources(config: dict[str, Any]) -> set[str]:
+    """Parse INCLUDE_SOURCES config value into a set of lowercase source names."""
+    raw = config.get('INCLUDE_SOURCES') or ''
+    return {s.strip().lower() for s in raw.split(',') if s.strip()}
+
+
+def is_threads_available(config: dict[str, Any]) -> bool:
+    """Check if Threads source is available.
+
+    Returns True when SCRAPECREATORS_API_KEY is set. Threads runs alongside
+    TikTok and Instagram as part of the SC family — same key, same per-call
+    cost shape, so the same default-on rule applies. Suppress via
+    EXCLUDE_SOURCES=threads.
+    """
+    return bool(config.get('SCRAPECREATORS_API_KEY'))
+
+
+def is_instagram_available(config: dict[str, Any]) -> bool:
     """Check if Instagram source is available (ScrapeCreators).
 
     Returns True if SCRAPECREATORS_API_KEY is set.
@@ -529,12 +628,12 @@ def is_instagram_available(config: Dict[str, Any]) -> bool:
     return bool(config.get('SCRAPECREATORS_API_KEY'))
 
 
-def get_instagram_token(config: Dict[str, Any]) -> str:
+def get_instagram_token(config: dict[str, Any]) -> str:
     """Get Instagram API token (same ScrapeCreators key as TikTok)."""
     return config.get('SCRAPECREATORS_API_KEY') or ''
 
 
-def get_xiaohongshu_api_base(config: Dict[str, Any]) -> str:
+def get_xiaohongshu_api_base(config: dict[str, Any]) -> str:
     """Get Xiaohongshu HTTP API base URL.
 
     Defaults to host.docker.internal so OpenClaw Docker can reach host service.
@@ -542,7 +641,7 @@ def get_xiaohongshu_api_base(config: Dict[str, Any]) -> str:
     return (config.get('XIAOHONGSHU_API_BASE') or "http://host.docker.internal:18060").rstrip("/")
 
 
-def is_xiaohongshu_available(config: Dict[str, Any]) -> bool:
+def is_xiaohongshu_available(config: dict[str, Any]) -> bool:
     """Check whether Xiaohongshu HTTP API is reachable and logged in."""
     # Import here to avoid heavy imports at module load.
     from . import http
@@ -564,7 +663,14 @@ def is_xiaohongshu_available(config: Dict[str, Any]) -> bool:
             if isinstance(login, dict) else False
         )
         return bool(is_logged_in)
-    except Exception:
+    except (OSError, http.HTTPError):
+        return False
+    except Exception as exc:
+        sys.stderr.write(
+            f"[last30days] WARNING: unexpected error checking Xiaohongshu: "
+            f"{type(exc).__name__}: {exc}\n"
+        )
+        sys.stderr.flush()
         return False
 
 
@@ -572,7 +678,7 @@ def is_xiaohongshu_available(config: Dict[str, Any]) -> bool:
 is_apify_available = is_tiktok_available
 
 
-def get_x_source_status(config: Dict[str, Any]) -> Dict[str, Any]:
+def get_x_source_status(config: dict[str, Any]) -> dict[str, Any]:
     """Get detailed X source status for UI decisions.
 
     Returns:
@@ -581,6 +687,8 @@ def get_x_source_status(config: Dict[str, Any]) -> Dict[str, Any]:
     """
     from . import bird_x
 
+    if config.get('AUTH_TOKEN') and config.get('CT0'):
+        bird_x.set_credentials(config.get('AUTH_TOKEN'), config.get('CT0'))
     bird_status = bird_x.get_bird_status()
     xai_available = bool(config.get('XAI_API_KEY'))
 
@@ -590,13 +698,47 @@ def get_x_source_status(config: Dict[str, Any]) -> Dict[str, Any]:
     elif xai_available:
         source = 'xai'
     else:
-        source = None
+        # Fall back to xurl CLI
+        from . import xurl_x as _xurl_check
+        source = 'xurl' if _xurl_check.is_available() else None
 
+    from . import xurl_x as _xurl_x
     return {
         "source": source,
         "bird_installed": bird_status["installed"],
         "bird_authenticated": bird_status["authenticated"],
         "bird_username": bird_status["username"],
         "xai_available": xai_available,
+        "xurl_available": _xurl_x.is_available(),
         "can_install_bird": bird_status["can_install"],
     }
+
+
+# Pinterest
+def is_pinterest_available(config: dict[str, Any]) -> bool:
+    """Check if Pinterest source is available.
+
+    Returns True when SCRAPECREATORS_API_KEY is set AND 'pinterest' is in
+    INCLUDE_SOURCES (or requested_sources at the pipeline level).  Pinterest
+    is opt-in because not every topic benefits from visual pin results.
+    """
+    return bool(config.get('SCRAPECREATORS_API_KEY'))
+
+
+def get_pinterest_token(config: dict[str, Any]) -> str:
+    """Get Pinterest API token (same ScrapeCreators key as TikTok/Instagram)."""
+    return config.get('SCRAPECREATORS_API_KEY') or ''
+
+
+# Xquik
+def is_xquik_available(config: dict[str, Any]) -> bool:
+    """Check if Xquik X search source is available.
+
+    Requires XQUIK_API_KEY (API key from xquik.com).
+    """
+    return bool(config.get('XQUIK_API_KEY'))
+
+
+def get_xquik_token(config: dict[str, Any]) -> str:
+    """Get Xquik API key."""
+    return config.get('XQUIK_API_KEY') or ''
