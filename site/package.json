@@ -1,0 +1,16 @@
+{
+  "name": "skills-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static site generator for skills.henryzh.dev",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs && npx serve dist",
+    "deploy": "node build.mjs && wrangler deploy"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "marked": "^12.0.2"
+  }
+}

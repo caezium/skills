@@ -25,6 +25,7 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **prd-to-issues** — Break a PRD into independently-grabbable GitHub issues using vertical slices.
 - **request-refactor-plan** — Create a detailed refactor plan with tiny commits via user interview, then file as a GitHub issue.
 - **triage-issue** — Investigate a bug by exploring the codebase, identify root cause, and file a GitHub issue with a TDD-based fix plan.
+- **throughline** — Publish an implementation plan as a live HTML URL the user can read on their phone, with a Markdown/JSON handoff.
 
 ### Development
 
@@ -34,6 +35,11 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **make-interfaces-feel-better** — Design engineering principles for polished interfaces (animations, hover states, typography, micro-interactions).
 - **ui-skills** — Opinionated constraints for building better interfaces with agents.
 - **superdesign** — Frontend UI/UX design agent for design thinking before implementation.
+- **prune** — Audit a codebase for dead code, duplication, and cruft, then safely remove what no longer earns its place.
+- **qa** — Interactive QA session: report bugs conversationally while the agent files GitHub issues with codebase context.
+- **triage** — Triage a bug or issue to root cause, then plan a TDD-based fix.
+- **app-screenshots** — Capture and curate screenshots of a GUI desktop app for a README, landing page, or docs.
+- **nib** — Turn an idea or article into original hand-drawn editorial illustrations starring a recurring avatar you own.
 
 ### Frontend Best Practices
 
@@ -50,6 +56,10 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **migrate-to-skills** — Cursor: migrate existing rules into skills.
 - **update-cursor-settings** — Cursor: modify Cursor settings.
 - **shell** — Cursor: shell command helper.
+- **install-skill** — Install a freshly authored skill into the repo, symlink it into the agent dirs, and commit + push.
+- **defuddle** — Extract clean markdown from web pages, stripping clutter and navigation to save tokens.
+- **dayflow-sync** — Sync the caezium/Dayflow fork with upstream: rebase, audit, build, and stop for a pre-install checkpoint.
+- **stats-sync** — Sync the caezium/stats fork with upstream: rebase, audit, test, build, and stop before install.
 
 ### Writing & Knowledge
 
@@ -57,6 +67,12 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **find-skills** — Discover and install agent skills.
 - **skill-creator** — Create, modify, and benchmark skills with optional eval suites.
 - **obsidian-vault** — Search, create, and manage notes in an Obsidian vault.
+- **obsidian-cli** — Interact with Obsidian vaults via the CLI; also plugin/theme development and debugging.
+- **obsidian-markdown** — Author Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties.
+- **obsidian-bases** — Create and edit Obsidian Bases (.base) with views, filters, formulas, and summaries.
+- **obsidian-convert** — Convert PDFs/DOCX into Obsidian markdown notes, preserving content verbatim.
+- **json-canvas** — Create and edit JSON Canvas (.canvas) files: nodes, edges, groups, mind maps, flowcharts.
+- **chatlog** — Query your own WeChat (微信) history through the local chatlog HTTP API.
 - **dialectic-digest** — Generate a dialectic-style digest.
 
 ### Research & Reporting

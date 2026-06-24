@@ -1,0 +1,13 @@
+{
+  "_comment": "Slugs of skills YOU authored. They render in an extra 'Made by me' section at the top of the index (duplicated, in addition to their category). Edit this list freely.",
+  "mine": [
+    "chatlog",
+    "install-skill",
+    "app-screenshots",
+    "prune",
+    "dayflow-sync",
+    "stats-sync",
+    "throughline",
+    "nib"
+  ]
+}

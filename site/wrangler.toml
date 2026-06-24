@@ -1,0 +1,15 @@
+name = "skills-henryzh"
+compatibility_date = "2025-06-01"
+account_id = "55b0640db6ae7f14ca61ec105d27925c"
+
+# Custom domain. Auto-provisions DNS + cert when the henryzh.dev zone is on
+# this Cloudflare account. Comment this out for the default *.workers.dev URL.
+routes = [
+  { pattern = "skills.henryzh.dev", custom_domain = true }
+]
+
+# Assets-only Worker (no script needed) — serves the generated static site.
+# Keep this table LAST: in TOML, keys after a table header belong to that table.
+[assets]
+directory = "./dist"
+not_found_handling = "404-page"

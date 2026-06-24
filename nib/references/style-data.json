@@ -1,0 +1,73 @@
+{
+  "_comment": "Canonical Nib style data — the single source of truth shared by the desktop app (src/main/lib/styles.ts and prompt-builder.ts import this file) and the skill engine (skills/nib/scripts/generate.py reads it at runtime). Methodology is adapted from xiaohei (helloianneo/ian-xiaohei-illustrations, MIT); the look definitions adapt techniques from comparable print-look systems, in Nib's own wording. Edit here only; do not re-copy these strings elsewhere.",
+  "baseMethodology": "One standalone 16:9 horizontal illustration on a pure white background — no beige, warm grey, paper texture, gradient, shadow, noise, or vintage-paper feel. Express ONE single idea, structure, state, or metaphor per image, with lots of empty white space: the subject sits at roughly 40-60% of the canvas and at least 35% stays quiet, ideally one calm empty region. The recurring character shown in the reference image is the subject and MUST physically perform the idea — carrying, pulling, sorting, jamming, weighing, guarding, patching, steering, holding — never decorating the scene; keep it serious, deadpan, and a little bizarre, not cute, and on-model in shape, colour, and proportions. It may bend into the prop it needs (a cylinder, a box, a funnel, a shadow, a hole, the dark block inside a machine) but stays the same character. Apply the erase test: if you remove the character and the idea still reads, it was decoration — rebuild it so the action cannot happen without the character. Invent a fresh, concrete, low-tech physical metaphor for THIS specific idea (boxes, tubes, buckets, pulleys, levers, boards, carts, wires, drawers, ladders, scales, gates); do not default to bridge / funnel / roadmap and do not copy a known composition. Give colour a job, not a mood: the base ink carries the linework and the character, and a bright accent is reserved for the one or two things that matter most — a red for a problem, friction, or result; an orange for the main flow, path, or A→B movement; a calm blue only for a secondary note or a system/mental state. Rather too few colours than too many. At most a few short handwritten labels (2-8 characters each, 5-8 of them at most), and only where they help — no title, no caption bar, and never write the structure's name or a corner heading on the image. The result should read as slightly odd for a beat, then snap clear within a second: strange but clean, clear but not instructional, interesting but not childish. It is not a photo, a logo, a commercial illustration, a PPT infographic, a formal flowchart, a course slide, a complex architecture diagram, a slick flat illustration, a sci-fi UI, or an app screenshot.",
+  "negativePrompt": "commercial illustration, PPT infographic, dense diagram, formal flowchart, course slide, complex architecture diagram, dashboard, slick flat illustration, sci-fi UI, real app screenshot, photoreal render, 3D corporate render, glossy vector, children's-book look, cute plush mascot, sticker, emoji, logo, beige or kraft paper, paper texture, gradient, drop shadow, noise, vignette, title bar, caption bar, corner title, framed border, legend, watermark, long sentences, paragraphs of text, clutter",
+  "defaultStyleId": "marker",
+  "looks": [
+    {
+      "id": "marker",
+      "label": "Marker",
+      "look": "Loose black hand-drawn marker look: thin, lightly wobbly black ink lines — confident but not mechanical, not vector, not heavily outlined — with flat fills and almost no shading, the whole drawing (character, props, arrows, label underlines) sharing one hand-made line. Small red / orange / blue accents used only where they carry meaning, on the white ground. The clean, absurd product-sketch feeling of an idea drawn by hand on a blank sheet."
+    },
+    {
+      "id": "riso",
+      "label": "Riso",
+      "look": "Risograph print look: flat ink fills carrying a visible halftone dot screen (not smooth), a slight ink-layer offset that leaves a thin colored edge beside the line — subtle, like real misregistration, not a glitch — and a faint paper grain over the white ground. Two or three quantized spot colors, with one bold, even-weight, softly-rounded line shared across the whole drawing."
+    },
+    {
+      "id": "blueprint",
+      "label": "Blueprint",
+      "look": "Technical blueprint look: clean, even-weight blue construction linework drawing everything as a draftsman's plan on white, with a very faint drafting grid and up to two small dimension ticks or measurement arrows. Flat, no shading, one line weight throughout. Leave off the blueprint clichés the model loves to add — no title block, no stamp, no border frame, no legend."
+    },
+    {
+      "id": "woodcut",
+      "label": "Woodcut",
+      "look": "Woodcut / linocut relief look: thick, confident carved black strokes — bold shapes and outlines with slightly rough, chipped edges — where the texture comes from visible carve marks and coarse parallel gouge lines in the large fills, never from halftone dots. One flat accent ink printed very slightly off-register (that small misalignment is correct, leave it). No gray midtones: every area is white paper, black ink, or the accent."
+    },
+    {
+      "id": "pixel",
+      "label": "Pixel",
+      "look": "Chunky pixel-art look, as if a tiny image were scaled up with nearest-neighbor: every shape — including the character — is built from visible square pixels on one shared grid, with 1-pixel stair-stepped outlines and sparse dithering only where shade is needed. A tight palette of about four colors on a crisp white ground. Hard pixel edges everywhere — any smooth or anti-aliased curve is wrong."
+    },
+    {
+      "id": "clay",
+      "label": "Clay",
+      "look": "Stop-motion clay look: every form — the character included — is smooth, hand-modeled matte plasticine with softly rounded edges and a few faint fingerprint dents, on a clean light set with soft even studio light and small soft contact shadows. Shapes separate by color and gentle light rather than drawn outlines. Name each accent hue plainly so it doesn't drift to a toy default. Not a glossy 3D render — no plastic sheen, no photoreal depth-of-field blur, and never a flat drawing pasted onto a clay set."
+    },
+    {
+      "id": "gouache",
+      "label": "Gouache",
+      "look": "Mid-century gouache look: flat, opaque, matte painted shapes with soft, slightly dry brush edges and one flat tone per shape — no drawn outlines; shapes separate by value and color with thin slivers of bare white paper showing between neighbors. Dry-brush texture only inside the larger fills, a slightly chalky surface, confident imperfect edges — no gradients, no blended shading. If it reads as outlined linework it has drifted; keep it painted."
+    },
+    {
+      "id": "chalk",
+      "label": "Chalk",
+      "look": "Chalkboard look: everything — character, props, arrows — drawn as confident, dry-edged white chalk strokes with visible chalk texture and a sure teacher's hand, never wispy or scratchy. A deep matte slate ground fills the frame with faint chalk dust and a ghost smudge or two; flat, no gradients. Labels are hand-chalked in caps. One accent reads as a stick of colored chalk, lifted to show on the dark board, used only where it carries meaning. No wooden frame, no chalk tray, no classroom."
+    },
+    {
+      "id": "diorama",
+      "label": "Diorama",
+      "look": "Children's-book tabletop diorama: confident dark ink outlines on the main forms, soft hand-drawn shapes set out as a slightly elevated little tabletop scene with gentle handmade depth and warm flat color. The character performs the idea among simple props on the small stage. Soft and storybook, not photoreal — no harsh shadows, no 3D render, no depth-of-field blur."
+    },
+    {
+      "id": "enamel",
+      "label": "Enamel",
+      "look": "Hard-enamel pin look: every shape bounded by one continuous raised metal outline of even width, each cell filled with a single flat glossy enamel color — no open or unbounded strokes anywhere. The whole scene reads like an oversized die-struck lapel pin lying flat on plain paper: flat color cells, polished metal lines, one subtle uniform sheen, and a hint of edge thickness. No pin-back hardware, no backing card, no photoreal depth."
+    },
+    {
+      "id": "felt",
+      "label": "Felt",
+      "look": "Layered felt-craft look: build everything — character, props, arrows — from hand-cut wool-felt pieces with soft rounded edges and a fuzzy nap, with NO drawn outlines; shapes separate by flat felt color, by soft drop shadows where one felt layer sits on another, and by the odd simple stitch dash. The character's own body reads as stacked felt layers (rows of feathers, quills, or tufts). Matte and handmade with slightly imperfect cuts — not glossy, not a 3D render, one flat color per piece, no gradient within a shape."
+    },
+    {
+      "id": "manila",
+      "label": "Manila",
+      "look": "Vintage office-paperwork look: draw everything — character, props, arrows — as flat rubber-stamped impressions, one chunky stamp-cut line with dry, unevenly inked edges, each element pressed by hand at a slightly different angle, an ink blotch or two welcome. Stamped on a manila-folder ground with faint paper fiber; completely flat, no gradients, no photoreal, no typed or printed text."
+    },
+    {
+      "id": "phosphor",
+      "label": "Phosphor",
+      "look": "CRT phosphor look: draw everything — character, props, arrows — as crisp phosphor vector strokes of one even weight, glowing softly against a near-black screen like an oscilloscope trace — a tight halo of glow with the line itself staying sharp. Very faint horizontal scanlines, subtle bloom around bright strokes, a slight corner vignette; otherwise completely flat. No monitor bezel, no desk, no glass reflections, no photoreal."
+    }
+  ]
+}
