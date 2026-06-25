@@ -47,6 +47,25 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **vueuse-best-practices** — VueUse composable patterns and TypeScript integration.
 - **pinia-best-practices** — Pinia store TypeScript configuration and typing issues.
 
+### Design & Taste
+
+From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md) (both MIT):
+
+- **taste-skill** — Anti-slop frontend skill for landing pages, portfolios, and redesigns; infers the right design direction and ships non-templated interfaces.
+- **taste-skill-v1** — The original v1 taste-skill, preserved for backward compatibility.
+- **gpt-tasteskill** — Elite UX/UI + GSAP motion skill: AIDA structure, wide editorial type, bento grids, scroll-driven motion.
+- **soft-skill** — High-end visual design: the exact fonts, spacing, shadows, and animations that make a site feel expensive.
+- **minimalist-skill** — Clean editorial interfaces: warm monochrome, typographic contrast, flat bento grids, no gradients.
+- **brutalist-skill** — Raw industrial-brutalist UI: rigid grids, extreme type contrast, analog degradation, declassified-blueprint feel.
+- **brandkit** — Premium brand-kit image generation: logo systems, identity decks, and visual-world boards.
+- **stitch-skill** — Generate agent-friendly DESIGN.md files enforcing premium, anti-generic UI standards (for Google Stitch).
+- **redesign-skill** — Upgrade existing sites/apps to premium quality; audit generic AI patterns and fix without breaking functionality.
+- **image-to-code-skill** — Image-to-code for Codex: generate the design image, analyze it, then build the site to match.
+- **imagegen-frontend-web** — Generate premium per-section website design reference images (one image per section).
+- **imagegen-frontend-mobile** — Generate premium app-native mobile screen concepts and flows inside phone mockups.
+- **output-skill** — Override LLM truncation: enforce complete, unabridged code output and ban placeholders.
+- **awesome-design-md** — A library of 74 real-brand DESIGN.md design systems (Stripe, Apple, Vercel, Linear, …) to match a brand's look.
+
 ### Tooling & Setup
 
 - **git-guardrails-claude-code** — Set up Claude Code hooks to block dangerous git commands.
