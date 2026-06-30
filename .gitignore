@@ -11,3 +11,7 @@ __pycache__/
 
 # package-guard scratch
 .scguard/
+
+# per-skill private sidecars (machine-local, never published)
+local.private.md
+**/local.private.md
