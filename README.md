@@ -171,3 +171,7 @@ Instructions for the agent. Reference supporting files like [details.md](details
 ## Origins
 
 Skills here come from a mix of sources — npx-installed (`mattpocock/skills`, `claude-skills-weekly`, `tech-digest`, `dialectic-digest`, `last30days`), Cursor's built-in tooling skills, and Anthropic's `skill-creator`. Each `SKILL.md` retains its original frontmatter for attribution. This repo is a personal aggregator, not a redistribution.
+
+## Global config sync
+
+`config/CLAUDE.md` is the global `~/.claude/CLAUDE.md` (git rules + writing style). `bin/sync.sh claude` symlinks it into place and auto-commits/pushes edits (throttled, once/hour, main only). On a new machine: clone this repo to `~/skills`, add the SessionStart hook running `~/skills/bin/sync.sh claude`, and if a real `~/.claude/CLAUDE.md` already exists, merge it into `config/CLAUDE.md` and delete it so the symlink can take over.
