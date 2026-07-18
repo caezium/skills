@@ -63,6 +63,40 @@ link_skills_into() {
   echo "  skills: +$added ~$replaced -$removed (skipped: $skipped)"
 }
 
+link_config_into() {
+  local target="$1"   # e.g. ~/.claude/CLAUDE.md
+  local src="$REPO/config/CLAUDE.md"
+  [ -f "$src" ] || return 0
+  if [ -e "$target" ] && [ ! -L "$target" ]; then
+    echo "  SKIP CLAUDE.md (real file at $target — merge it into $src, then remove it)"
+    return 0
+  fi
+  ln -sfn "$src" "$target"
+  echo "  config: CLAUDE.md linked"
+}
+
+# Throttled git sync (at most once/hour): auto-commit config/ edits, ff-pull,
+# and push any local commits so other machines pick everything up.
+autosync_repo() {
+  local stamp="$REPO/.git/last-autosync"
+  if [ -f "$stamp" ] && [ -n "$(find "$stamp" -mmin -60 2>/dev/null)" ]; then
+    return 0
+  fi
+  touch "$stamp"
+  (
+    cd "$REPO"
+    [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] || { echo "  autosync: skipped (not on main)"; exit 0; }
+    if ! git diff --quiet -- config/ || [ -n "$(git ls-files --others --exclude-standard config/)" ]; then
+      git add config/ && git commit -q -m "config: update CLAUDE.md" && echo "  autosync: committed config change"
+    fi
+    git fetch -q origin main 2>/dev/null || exit 0
+    git merge -q --ff-only origin/main 2>/dev/null && true
+    if [ -n "$(git log origin/main..main --oneline 2>/dev/null)" ]; then
+      git push -q origin main 2>/dev/null && echo "  autosync: pushed to origin/main"
+    fi
+  ) || true
+}
+
 link_commands_into() {
   local target_dir="$1"
   mkdir -p "$target_dir"
@@ -81,6 +115,8 @@ sync_claude() {
   echo "Claude: ~/.claude/skills/ + ~/.claude/commands/"
   link_skills_into "$HOME/.claude/skills"
   link_commands_into "$HOME/.claude/commands"
+  link_config_into "$HOME/.claude/CLAUDE.md"
+  autosync_repo
 }
 
 sync_cursor() {
