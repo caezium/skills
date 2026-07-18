@@ -9,22 +9,18 @@ allowed-tools: Bash,Read,Edit,Write
 Weekly upstream sync routine for the `caezium/Dayflow` fork. Tracks
 `JerryZLiu/Dayflow`.
 
-## Tiered conflict policy
+## How it runs
 
-This skill runs **mostly autonomously** but stops at clearly-defined
-checkpoints:
+Runs **mostly autonomously**, halting only at three named points. Each is
+defined here only enough to name it; the mechanics live in one place — the
+step that enforces it.
 
-- **Tier A — known-droppable commits.** Conflicts on commits flagged
-  `on_conflict: auto_skip_if` in `state/commits.yaml` are auto-skipped
-  *after* their `condition` is verified. The dropped diff is captured
-  in the pre-install summary so the user can spot regressions.
-- **Tier B — hardening + features.** Any conflict on a commit flagged
-  `on_conflict: stop` halts the run. These patches must be re-ported
-  by hand; never `--skip` them.
-- **Pre-install checkpoint.** After rebase + audit + Debug build pass,
-  the skill **always stops** with a glanceable summary and waits for
-  the user to reply "install" (or abort). It never auto-touches
-  `/Applications/Dayflow.app`.
+- **Tier A / Tier B** — per-commit conflict policy from `state/commits.yaml`,
+  applied during the rebase (step 5). Tier A auto-skips known-droppable
+  commits once their condition verifies; Tier B halts for hand re-porting.
+- **Pre-install checkpoint** — after rebase + audit + Debug build, the skill
+  **always stops** for a go-ahead before touching `/Applications/Dayflow.app`
+  (step 9).
 
 ## Context
 
