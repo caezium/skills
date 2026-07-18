@@ -1,4 +1,4 @@
-"""Entity extraction from Phase 1 search results for supplemental searches."""
+"""Entity extraction from initial search results for supplemental searches."""
 
 import re
 from collections import Counter
@@ -106,7 +106,7 @@ def _extract_subreddits(reddit_items: List[Dict[str, Any]]) -> List[str]:
 
     for item in reddit_items:
         # Primary subreddit
-        sub = item.get("subreddit", "").strip().lstrip("r/")
+        sub = item.get("subreddit", "").strip().removeprefix("r/")
         if sub:
             sub_counts[sub] += 1
 

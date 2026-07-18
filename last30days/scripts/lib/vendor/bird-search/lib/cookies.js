@@ -2,11 +2,13 @@
  * Browser cookie extraction for Twitter authentication.
  * Delegates to @steipete/sweet-cookie for Safari/Chrome/Firefox reads.
  */
-import { getCookies } from '@steipete/sweet-cookie';
 const TWITTER_COOKIE_NAMES = ['auth_token', 'ct0'];
 const TWITTER_URL = 'https://x.com/';
 const TWITTER_ORIGINS = ['https://x.com/', 'https://twitter.com/'];
 const DEFAULT_COOKIE_TIMEOUT_MS = 30_000;
+async function loadSweetCookie() {
+    return import('@steipete/sweet-cookie');
+}
 function normalizeValue(value) {
     if (typeof value !== 'string') {
         return null;
@@ -79,6 +81,7 @@ function pickCookieValue(cookies, name) {
 async function readTwitterCookiesFromBrowser(options) {
     const warnings = [];
     const out = buildEmpty();
+    const { getCookies } = options;
     const { cookies, warnings: providerWarnings } = await getCookies({
         url: TWITTER_URL,
         origins: TWITTER_ORIGINS,
@@ -114,14 +117,21 @@ async function readTwitterCookiesFromBrowser(options) {
     }
     return { cookies: out, warnings };
 }
+async function extractCookiesFromBrowser(options) {
+    const { getCookies } = await loadSweetCookie();
+    return readTwitterCookiesFromBrowser({
+        getCookies,
+        ...options,
+    });
+}
 export async function extractCookiesFromSafari() {
-    return readTwitterCookiesFromBrowser({ source: 'safari' });
+    return extractCookiesFromBrowser({ source: 'safari' });
 }
 export async function extractCookiesFromChrome(profile) {
-    return readTwitterCookiesFromBrowser({ source: 'chrome', chromeProfile: profile });
+    return extractCookiesFromBrowser({ source: 'chrome', chromeProfile: profile });
 }
 export async function extractCookiesFromFirefox(profile) {
-    return readTwitterCookiesFromBrowser({ source: 'firefox', firefoxProfile: profile });
+    return extractCookiesFromBrowser({ source: 'firefox', firefoxProfile: profile });
 }
 /**
  * Resolve Twitter credentials from multiple sources.
@@ -165,8 +175,27 @@ export async function resolveCredentials(options) {
         return { cookies, warnings };
     }
     const sourcesToTry = resolveSources(options.cookieSource);
+    let getCookies;
+    try {
+        ({ getCookies } = await loadSweetCookie());
+    }
+    catch (error) {
+        if (error?.code !== 'ERR_MODULE_NOT_FOUND' ||
+            !String(error.message ?? '').includes('@steipete/sweet-cookie')) {
+            throw error;
+        }
+        warnings.push('Browser cookie lookup unavailable because vendored dependency @steipete/sweet-cookie is not installed.');
+        if (!cookies.authToken) {
+            warnings.push('Missing auth_token - provide via --auth-token, AUTH_TOKEN env var, or login to x.com in Safari/Chrome/Firefox');
+        }
+        if (!cookies.ct0) {
+            warnings.push('Missing ct0 - provide via --ct0, CT0 env var, or login to x.com in Safari/Chrome/Firefox');
+        }
+        return { cookies, warnings };
+    }
     for (const source of sourcesToTry) {
         const res = await readTwitterCookiesFromBrowser({
+            getCookies,
             source,
             chromeProfile: options.chromeProfile,
             firefoxProfile: options.firefoxProfile,
