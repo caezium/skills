@@ -19,6 +19,7 @@ Default scope: every page in the site's sitemap, pixel-perfect, with real assets
    ```
    If the folder exists, ask before overwriting.
 2. Make research dirs: `docs/research/<hostname>/`, `docs/research/components/`, `docs/design-references/`.
+3. Check `~/Desktop/inspo/sites.json` (the inspo hub — the permanent home of all finished clones, private repo `caezium/inspo`): if this site was already cloned, ask whether to redo it or extend the existing one. The Desktop folder is a workspace; the clone isn't done until Phase 6 registers it in the hub.
 
 ## Phase 1 — Stack detection (decides everything)
 
@@ -78,7 +79,28 @@ Assemble `src/app/page.tsx` (and routes) yourself; run `npm run build` after mer
    ```
    (Copy `scripts/fidelity-diff.py` from this skill's directory into the project.) It strips tags/scripts, decodes entities, and reports missing words per page. Target ≥99%; chase every gap to root cause — real omissions vs entity-encoding artifacts vs apostrophe-style drift all look different in the output.
 3. Live QA with Chrome MCP: side-by-side against the original at the same scroll positions; click every interactive element (tabs, accordions, toggles, modals); check the console for errors. Verify scroll-pinned sections actually pin (`.pin-spacer` exists, body height grew).
-4. Commit with a summary of sections/components/assets. No AI attribution in the message.
+4. Capture a real homepage screenshot of the CLONE for the hub card — the template's stock `docs/design-references/comparison.png` is a demo image, not your site; delete it:
+   ```bash
+   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --disable-gpu \
+     --screenshot=docs/design-references/clone-home-1440.png --window-size=1440,900 \
+     --hide-scrollbars --virtual-time-budget=12000 http://localhost:3210/
+   ```
+5. Commit with a summary of sections/components/assets. No AI attribution in the message.
+
+## Phase 6 — Register in the inspo hub
+
+Every finished clone gets consolidated into `~/Desktop/inspo` (gallery of all clones; `sites.json` is the single source of truth — `index.html` renders purely from it, no other wiring).
+
+1. Snapshot the code:
+   ```bash
+   rsync -a --delete --exclude node_modules --exclude .next --exclude .git \
+     ~/Desktop/<hostname>-clone/ ~/Desktop/inspo/sites/<id>/
+   git -C ~/Desktop/<hostname>-clone bundle create ~/Desktop/inspo/histories/<id>.bundle --all
+   ```
+   `<id>` = short lowercase name (see existing ids in sites.json).
+2. Add a `sites.json` entry: `kind: "nextjs"`, `port` = next free 31xx, `thumbnail` = the real clone screenshot from Phase 5 (never a stock/template image), 3–5 design-vibe `tags` (reuse existing tag vocabulary where it fits), `description` = one line on the design language, `original_url`, and `run: "./serve.sh <id>"`.
+3. Verify: `cd ~/Desktop/inspo && ./serve.sh` → the new card renders with its thumbnail at localhost:4600. Then commit + push (`origin` = private `caezium/inspo`).
+4. Ask the user whether to delete the Desktop working folder. Before any deletion: check no other session is actively developing it (uncommitted work, recent commits you didn't make, running dev servers) — the hub snapshot captures files, not in-flight work. The history bundle preserves the git log either way.
 
 ## Judgment calls to surface to the user (don't silently decide)
 
@@ -88,4 +110,4 @@ Assemble `src/app/page.tsx` (and routes) yourself; run `npm run build` after mer
 
 ## Completion report
 
-Sections built, components created, assets downloaded, routes generated, build status, fidelity-diff scores, interactions tested, and known gaps (backend routes, uncloned linked pages).
+Sections built, components created, assets downloaded, routes generated, build status, fidelity-diff scores, interactions tested, known gaps (backend routes, uncloned linked pages), and hub registration (sites.json id + port, pushed to caezium/inspo).
