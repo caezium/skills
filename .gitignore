@@ -15,3 +15,7 @@ __pycache__/
 # per-skill private sidecars (machine-local, never published)
 local.private.md
 **/local.private.md
+
+# Per-machine sync run state; keep declarative state such as commits.yaml tracked.
+dayflow-sync/state/last-*
+stats-sync/state/

@@ -10,7 +10,7 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 ~/skills/
 ├── <skill-name>/SKILL.md       # one folder per skill
 ├── commands/*.md               # slash commands (not skills)
-├── bin/sync.sh                 # symlink helper for Claude / Cursor
+├── bin/sync.sh                 # symlink helper for Claude / Cursor / shared agents
 └── README.md
 ```
 
@@ -40,6 +40,17 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **triage** — Triage a bug or issue to root cause, then plan a TDD-based fix.
 - **app-screenshots** — Capture and curate screenshots of a GUI desktop app for a README, landing page, or docs.
 - **nib** — Turn an idea or article into original hand-drawn editorial illustrations starring a recurring avatar you own.
+
+### Platform & Operations
+
+- **cloudflare** — Comprehensive Cloudflare platform guidance with current-reference routing.
+- **agents-sdk** — Build stateful agents, workflows, realtime apps, and MCP servers on Cloudflare Workers.
+- **durable-objects** — Create and review Durable Objects, including RPC, SQLite, alarms, WebSockets, and tests.
+- **workers-best-practices** — Author and review production Workers code against current platform practices.
+- **wrangler** — Use the Wrangler CLI across Workers, storage, AI, queues, workflows, and containers.
+- **cloudflare-email-service** — Build transactional sending and inbound routing with Cloudflare Email Service.
+- **sandbox-sdk** — Build secure code execution and interpreter workflows with Cloudflare Sandbox SDK.
+- **web-perf** — Audit Core Web Vitals and diagnose browser performance with Chrome DevTools.
 
 ### Frontend Best Practices
 
@@ -79,6 +90,9 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 - **defuddle** — Extract clean markdown from web pages, stripping clutter and navigation to save tokens.
 - **dayflow-sync** — Sync the caezium/Dayflow fork with upstream: rebase, audit, build, and stop for a pre-install checkpoint.
 - **stats-sync** — Sync the caezium/stats fork with upstream: rebase, audit, test, build, and stop before install.
+- **dayflow-pull** — Read Dayflow's local database and compute accurate overlap-merged work hours.
+- **vista-dashboard** — Publish live agent status into the local Vista dashboard.
+- **burrow-system-tools** — Diagnose local macOS health and performance through Burrow's MCP tools.
 
 ### Writing & Knowledge
 
@@ -142,6 +156,15 @@ Cursor reads from `~/.cursor/skills/` (modern) and `~/.cursor/skills-cursor/` (C
 bin/sync.sh cursor
 ```
 
+### Codex and other agents
+
+Codex reads user skills from `~/.agents/skills/`. Link the repo there so the
+same canonical skill directories are shared without copied installs:
+
+```sh
+bin/sync.sh agents
+```
+
 ### Other agents (Aider, Continue, Cline, Codex)
 
 The markdown content ports anywhere, only the discovery path differs:
@@ -151,7 +174,7 @@ The markdown content ports anywhere, only the discovery path differs:
 | Aider | `CONVENTIONS.md` at repo root, or `~/.aider.conf.yml` `read:` list | Concatenate selected `SKILL.md` bodies into one file |
 | Continue | `~/.continue/config.json` (`systemMessage` or `customCommands`) | Reference per-skill content as custom commands |
 | Cline | `.clinerules` per-repo | Same as Aider — concatenate or selectively include |
-| OpenAI Codex | `AGENTS.md` at repo root or `~/.codex/AGENTS.md` | Concatenate selected `SKILL.md` bodies |
+| OpenAI Codex | `~/.agents/skills/<skill-name>/SKILL.md` | Run `bin/sync.sh agents` |
 
 The portable pattern: `SKILL.md` is the source of truth here; symlink (or generate via script) into each agent's expected location. MCP servers handle cross-agent *tool* portability, not prompted skills — so symlinking is the realistic answer for skills today.
 

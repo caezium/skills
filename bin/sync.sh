@@ -5,12 +5,13 @@
 # - Replaces existing symlinks; refuses to overwrite real directories at the target.
 # - Prunes broken symlinks at the target that used to point back into this repo
 #   (i.e. you deleted/renamed a skill, this cleans up the dangling link).
-# - Also symlinks commands/*.md into the agent's commands/ directory.
+# - Also symlinks commands/*.md into agent command directories where supported.
 #
 # Usage:
 #   bin/sync.sh claude    # symlink into ~/.claude/skills/ and ~/.claude/commands/
 #   bin/sync.sh cursor    # symlink into ~/.cursor/skills/ and ~/.cursor/commands/
-#   bin/sync.sh all       # both
+#   bin/sync.sh agents    # symlink into ~/.agents/skills/ for Codex and other agents
+#   bin/sync.sh all       # all three
 
 set -euo pipefail
 
@@ -125,12 +126,18 @@ sync_cursor() {
   link_commands_into "$HOME/.cursor/commands"
 }
 
+sync_agents() {
+  echo "Shared agents: ~/.agents/skills/"
+  link_skills_into "$HOME/.agents/skills"
+}
+
 case "${1:-}" in
   claude) sync_claude ;;
   cursor) sync_cursor ;;
-  all)    sync_claude; sync_cursor ;;
+  agents) sync_agents ;;
+  all)    sync_claude; sync_cursor; sync_agents ;;
   *)
-    echo "Usage: $0 {claude|cursor|all}" >&2
+    echo "Usage: $0 {claude|cursor|agents|all}" >&2
     exit 1
     ;;
 esac

@@ -1,0 +1,81 @@
+# Per-commit metadata for the private-hardening branch.
+#
+# Read by the dayflow-sync skill during rebase (step 5). Determines whether
+# a rebase conflict on a specific commit can be auto-skipped (Tier A) or
+# must stop for human resolution (Tier B).
+#
+# Match semantics: a commit's subject (from `git log -1 --format='%s' REBASE_HEAD`)
+# is matched against `subject_match` as a substring. First entry that matches wins.
+# Order matters — list more-specific entries first if any overlap.
+#
+# `on_conflict` values:
+#   - stop           : Tier B. Surface conflict context, stop the run.
+#   - auto_skip_if   : Tier A. Evaluate `auto_skip_if.condition`; skip if met, else stop.
+#
+# `auto_skip_if.condition` values:
+#   - build_main_succeeds : Run a Debug `xcodebuild` against `main` (the freshly-mirrored
+#                           upstream). If it produces `** BUILD SUCCEEDED **`, the
+#                           workaround is obsolete and can be dropped.
+
+commits:
+  - subject_match: 'fix(security): gate Keychain logging'
+    tier: hardening
+    role: audit_finding
+    on_conflict: stop
+    notes: Strips key-material prints from KeychainManager.
+
+  - subject_match: 'fix(privacy): default telemetry to opt-out'
+    tier: hardening
+    role: audit_finding
+    on_conflict: stop
+    notes: Telemetry default OFF, removes Host.localizedName PII.
+
+  - subject_match: 'fix(privacy): default timeline feedback share-logs'
+    tier: hardening
+    role: audit_finding
+    on_conflict: stop
+    notes: Feedback share-logs default false in MainView + Actions.
+
+  - subject_match: 'fix(updater): disable Sparkle XPC installer launcher'
+    tier: hardening
+    role: macos_tahoe_fix
+    on_conflict: stop
+    notes: macOS Tahoe -10810 fix in Info.plist.
+
+  - subject_match: 'fix(menu-bar): show status popover'
+    tier: hardening
+    role: bug_fix
+    on_conflict: stop
+    notes: fullScreenAuxiliary in StatusBarController.
+
+  - subject_match: 'fix(onboarding): defer provider config persistence'
+    tier: hardening
+    role: bug_fix
+    on_conflict: stop
+    notes: Removes persistGeminiAPIKey(source:"onboarding_step") path.
+
+  - subject_match: 'Revert "release: update whats new for daily goals"'
+    tier: temporary_workaround
+    role: build_break_workaround
+    on_conflict: auto_skip_if
+    auto_skip_if:
+      condition: build_main_succeeds
+      rationale: |
+        Revert exists only because upstream commit 967f763 ships a broken
+        WhatsNewView. Once upstream's main builds clean (meaning WhatsNewView
+        compiles), the revert is obsolete. Auto-skip re-enables upstream's
+        What's New content; the diff is captured in the pre-install summary
+        so the user can spot new telemetry prompts or feature-advertising
+        before installing.
+
+  - subject_match: 'feat(settings): add Remove configuration'
+    tier: feature
+    role: fork_feature
+    on_conflict: stop
+    notes: Per-provider Remove Configuration button. Touches ProvidersSettingsViewModel and SettingsProvidersTabView.
+
+  - subject_match: 'fix(updater): disable Sparkle auto-update for local fork'
+    tier: hardening
+    role: audit_finding
+    on_conflict: stop
+    notes: All Sparkle auto-update flags off in Info.plist.
