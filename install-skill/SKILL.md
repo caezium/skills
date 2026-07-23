@@ -68,11 +68,25 @@ ls -la ~/.claude/skills/<skill-name>   # should show -> /Users/henry/skills/<ski
 ls -la ~/.cursor/skills/<skill-name>
 ```
 
-### Step 4 — Commit and push
+### Step 4 — Refresh the published skills map
+
+Refresh the full-machine inventory before committing. The script deduplicates
+personal, shared-agent, Codex, and plugin skills, then builds and validates the
+HTML site locally:
+
+```sh
+~/skills/bin/update-skills-map.sh
+```
+
+Include `site/installed-skills.json` in the same commit when it changed. The
+site deployment workflow rebuilds the repository catalog and the installed
+skills map after the push.
+
+### Step 5 — Commit and push
 
 ```sh
 cd ~/skills
-git add <skill-name>/
+git add <skill-name>/ site/installed-skills.json
 git commit -m "Add <skill-name>: <one-line purpose>"
 git push
 ```
@@ -85,7 +99,7 @@ Commit message conventions:
 
 Push goes to `main` directly — this is a personal repo, no PR workflow.
 
-### Step 5 — Confirm pickup
+### Step 6 — Confirm pickup
 
 In a **fresh** Claude Code or Cursor session, the skill should appear in the available-skills list. Skills load at session start; runtime additions don't auto-register. Tell the user to restart their session if it's not showing.
 
@@ -115,11 +129,12 @@ Skip `~/skills/` (and use a project-local location instead) when:
 - The skill contains secrets, API keys, or private paths — caezium/skills is **public**
 - The skill duplicates existing functionality — search `~/skills/` first; consider editing the existing one
 
-## Quick reference: full install in 4 commands
+## Quick reference: full install in 5 commands
 
 For an already-validated skill folder at `~/skills/<name>/`:
 
 ```sh
 ~/skills/bin/sync.sh all
-cd ~/skills && git add <name>/ && git commit -m "Add <name>: <purpose>" && git push
+~/skills/bin/update-skills-map.sh
+cd ~/skills && git add <name>/ site/installed-skills.json && git commit -m "Add <name>: <purpose>" && git push
 ```

@@ -130,7 +130,29 @@ Single-file prompts, dropped into `~/.claude/commands/` or `~/.cursor/commands/`
 - **dialectic-digest** — Generate a dialectic digest.
 - **rams** — Run accessibility and visual design review.
 - **ui-skills** — Apply UI skills constraints.
+- **update-skills-map** — Refresh and validate the full installed-skills map; optionally publish its snapshot.
 - **web-interface-guidelines** — Review UI code against Vercel Web Interface Guidelines.
+
+## Generated skills site
+
+[skills.henryzh.dev](https://skills.henryzh.dev) has two generated views:
+
+- The catalog reads every top-level `SKILL.md` in this repository and provides
+  a detail page for each personal skill.
+- The production map combines that repository with a local snapshot of shared
+  agent, Codex, and plugin skills, then organizes the full installed inventory
+  by use case and shows the recommended idea-to-production sequence.
+
+Refresh the full-machine snapshot and verify the site locally:
+
+```sh
+bin/update-skills-map.sh
+```
+
+Pass `--push` to commit and push only the generated snapshot. The standard
+`install-skill` workflow refreshes the snapshot before its normal skill commit.
+GitHub Actions validates site changes on pull requests, rebuilds on every push
+to `main`, and performs a scheduled rebuild each Monday.
 
 ## Wiring this into your agents
 

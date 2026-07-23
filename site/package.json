@@ -6,6 +6,8 @@
   "description": "Static site generator for skills.henryzh.dev",
   "scripts": {
     "build": "node build.mjs",
+    "snapshot": "node snapshot.mjs",
+    "check": "node --test map.config.test.mjs && npm run build && node validate.mjs",
     "dev": "node build.mjs && npx serve dist",
     "deploy": "node build.mjs && wrangler deploy"
   },

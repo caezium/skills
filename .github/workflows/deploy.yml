@@ -3,6 +3,8 @@ name: Deploy site
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -28,9 +30,9 @@ jobs:
         working-directory: site
         run: npm ci
 
-      - name: Build site
+      - name: Build and validate site
         working-directory: site
-        run: npm run build
+        run: npm run check
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3

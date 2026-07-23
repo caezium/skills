@@ -3,11 +3,18 @@
 // category headings from README.md, and emits a clean editorial catalog
 // plus a detail page per skill.
 
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, cpSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { marked } from "marked";
+import {
+  CATEGORIES,
+  PIPELINE,
+  categorizeSkill,
+  categoryLabel,
+  normalize,
+} from "./map.config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = join(__dirname, "..");
@@ -15,6 +22,7 @@ const DIST = join(__dirname, "dist");
 const GH = "https://github.com/caezium/skills";
 const GH_TREE = `${GH}/tree/main`;
 const GH_BLOB = `${GH}/blob/main`;
+const INSTALLED_SNAPSHOT = join(__dirname, "installed-skills.json");
 
 // Directories at repo root that are not skills.
 const NOT_SKILLS = new Set(["site", "bin", "commands", ".git", ".github", "node_modules"]);
@@ -47,6 +55,63 @@ function collectSkills() {
     });
   }
   return skills;
+}
+
+function loadInstalledSnapshot() {
+  if (!existsSync(INSTALLED_SNAPSHOT)) {
+    return { schemaVersion: 1, updatedAt: null, skills: [] };
+  }
+  try {
+    const snapshot = JSON.parse(readFileSync(INSTALLED_SNAPSHOT, "utf8"));
+    if (!Array.isArray(snapshot.skills)) throw new Error("skills must be an array");
+    return snapshot;
+  } catch (error) {
+    throw new Error(`Invalid installed-skills.json: ${error.message}`);
+  }
+}
+
+function buildInventory(repoSkills, snapshot) {
+  const byName = new Map();
+
+  for (const skill of snapshot.skills) {
+    const key = normalize(skill.name);
+    if (!key) continue;
+    byName.set(key, {
+      name: skill.name,
+      description: skill.description || "",
+      sources: Array.isArray(skill.sources) ? skill.sources : [],
+      copies: Number(skill.copies) || 1,
+      repoSlug: null,
+    });
+  }
+
+  for (const skill of repoSkills) {
+    const key = normalize(skill.name);
+    const existing = byName.get(key) || {
+      name: skill.name,
+      description: "",
+      sources: [],
+      copies: 1,
+      repoSlug: null,
+    };
+    existing.name = skill.name;
+    existing.description = skill.description || existing.description;
+    existing.sources = [...new Set([...existing.sources, "personal"])].sort();
+    existing.repoSlug = skill.slug;
+    byName.set(key, existing);
+  }
+
+  return [...byName.values()]
+    .map((skill) => {
+      const category = categorizeSkill(skill);
+      return {
+        ...skill,
+        category: category.id,
+        categoryMethod: category.method,
+        blurb: firstSentence(skill.description),
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
 function extractTags(data) {
@@ -116,7 +181,9 @@ function esc(s = "") {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function layout({ title, description, body, page }) {
+function layout({ title, description, body, page, footerNote = null }) {
+  const homeCurrent = page === "home" ? ` aria-current="page"` : "";
+  const mapCurrent = page === "map" ? ` aria-current="page"` : "";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -137,6 +204,8 @@ function layout({ title, description, body, page }) {
   <div class="wrap">
     <a class="brand" href="/">skills<span>.henryzh.dev</span></a>
     <nav>
+      <a href="/"${homeCurrent}>Catalog</a>
+      <a href="/map/"${mapCurrent}>Production map</a>
       <a href="${GH}">GitHub ↗</a>
     </nav>
   </div>
@@ -147,7 +216,7 @@ ${body}
 <footer class="site-foot">
   <div class="wrap">
     <p>A personal directory of agent skills. Source of truth: <a href="${GH}">caezium/skills</a>.</p>
-    <p class="muted">Generated from <code>SKILL.md</code> frontmatter · rebuilt on every push.</p>
+    <p class="muted">${footerNote ? esc(footerNote) : "Generated from SKILL.md frontmatter and rebuilt on every push."}</p>
   </div>
 </footer>
 </body>
@@ -241,6 +310,169 @@ ${sections}
   });
 }
 
+function pipelineSkillHtml(name, inventoryByName) {
+  const skill = inventoryByName.get(normalize(name));
+  if (!skill) return `<span class="skill-token unavailable">${esc(name)}</span>`;
+  if (skill.repoSlug) {
+    return `<a class="skill-token" href="/skills/${esc(skill.repoSlug)}/">${esc(skill.name)}</a>`;
+  }
+  return `<span class="skill-token external" title="Installed outside the personal skills repository">${esc(skill.name)}</span>`;
+}
+
+function inventoryCardHtml(skill) {
+  const source = skill.sources.length ? skill.sources.join(", ") : "personal";
+  const copyLabel = skill.copies > 1 ? `${skill.copies} installed copies` : "1 installed copy";
+  const content = `<h3>${esc(skill.name)}</h3>
+        <p>${esc(skill.blurb || "No description provided.")}</p>
+        <span class="source">${esc(source)} · ${esc(copyLabel)}</span>`;
+  const search = esc(`${skill.name} ${skill.description} ${categoryLabel(skill.category)} ${source}`.toLowerCase());
+
+  if (skill.repoSlug) {
+    return `      <a class="inventory-card" href="/skills/${esc(skill.repoSlug)}/" data-search="${search}">
+        ${content}
+      </a>`;
+  }
+  return `      <article class="inventory-card external-card" data-search="${search}">
+        ${content}
+      </article>`;
+}
+
+function pipelineHtml(inventory) {
+  const inventoryByName = new Map(inventory.map((skill) => [normalize(skill.name), skill]));
+  return PIPELINE.map((stage) => {
+    const skills = stage.skills
+      .map((name) => pipelineSkillHtml(name, inventoryByName))
+      .join("");
+    return `  <article class="pipeline-stage" id="${esc(stage.id)}">
+    <div class="stage-copy">
+      <h3>${esc(stage.title)}</h3>
+      <p>${esc(stage.description)}</p>
+    </div>
+    <div class="stage-tools">
+      <div class="skill-tokens">${skills}</div>
+      ${stage.gap ? `<p class="gap">${esc(stage.gap)}</p>` : ""}
+      <p class="gate">${esc(stage.gate)}</p>
+    </div>
+  </article>`;
+  }).join("\n");
+}
+
+function mapPage(inventory, snapshot) {
+  const counts = new Map();
+  for (const skill of inventory) {
+    counts.set(skill.category, (counts.get(skill.category) || 0) + 1);
+  }
+
+  const categoryNav = [
+    ...CATEGORIES.filter((category) => counts.has(category.id)),
+    ...(counts.has("review") ? [{ id: "review", label: "Needs review" }] : []),
+  ]
+    .map((category) => `<a href="#category-${esc(category.id)}">${esc(category.label)} <span>${counts.get(category.id) || 0}</span></a>`)
+    .join("");
+
+  const groups = [
+    ...CATEGORIES,
+    { id: "review", label: "Needs review" },
+  ]
+    .filter((category) => counts.has(category.id))
+    .map((category) => {
+      const cards = inventory
+        .filter((skill) => skill.category === category.id)
+        .map(inventoryCardHtml)
+        .join("\n");
+      return `<section class="inventory-group" id="category-${esc(category.id)}" data-inventory-group>
+  <header>
+    <h2>${esc(category.label)}</h2>
+    <span>${counts.get(category.id)} skills</span>
+  </header>
+  <div class="inventory-grid">
+${cards}
+  </div>
+</section>`;
+    })
+    .join("\n");
+
+  const repoCount = inventory.filter((skill) => skill.repoSlug).length;
+  const externalCount = inventory.length - repoCount;
+  const updated = snapshot.updatedAt
+    ? new Date(snapshot.updatedAt).toISOString().slice(0, 10)
+    : "repository build";
+
+  const body = `<section class="map-hero">
+  <div>
+    <p class="kicker">Installed skills map</p>
+    <h1>From an idea to production</h1>
+    <p class="lede">A practical sequence for challenging ideas, limiting scope, shipping safely, and learning from real use.</p>
+  </div>
+  <dl class="map-stats">
+    <div><dt>Unique skills</dt><dd>${inventory.length}</dd></div>
+    <div><dt>Personal repo</dt><dd>${repoCount}</dd></div>
+    <div><dt>Runtime and plugins</dt><dd>${externalCount}</dd></div>
+    <div><dt>Snapshot</dt><dd>${esc(updated)}</dd></div>
+  </dl>
+</section>
+
+<section class="pipeline">
+  <header class="section-intro">
+    <h2>The production path</h2>
+    <p>Use the smallest relevant set. Each gate exists because later detail multiplies the cost of an earlier mistake.</p>
+  </header>
+${pipelineHtml(inventory)}
+</section>
+
+<aside class="map-principle">
+  <h2>When the AI should stop and ask</h2>
+  <p>Ask when the answer changes product value, external behavior, irreversible architecture, risk tolerance, or scope. Look up repository facts and continue independently for reversible implementation details already settled by the spec.</p>
+</aside>
+
+<section class="inventory">
+  <header class="section-intro inventory-intro">
+    <div>
+      <h2>Full installed inventory</h2>
+      <p>The local snapshot includes personal skills, shared agent skills, Codex skills, and installed plugin skills.</p>
+    </div>
+    <label class="map-search">
+      <span>Filter skills</span>
+      <input id="map-q" type="search" placeholder="Name, purpose, or category" autocomplete="off">
+    </label>
+  </header>
+  <nav class="category-nav" aria-label="Skill categories">${categoryNav}</nav>
+  <p id="map-count" class="map-count" aria-live="polite"></p>
+${groups}
+</section>
+
+<script>
+(function(){
+  var input=document.getElementById('map-q');
+  var cards=[].slice.call(document.querySelectorAll('.inventory-card'));
+  var groups=[].slice.call(document.querySelectorAll('[data-inventory-group]'));
+  var count=document.getElementById('map-count');
+  function run(){
+    var value=input.value.trim().toLowerCase();
+    var visible=0;
+    cards.forEach(function(card){
+      var hit=!value||card.dataset.search.indexOf(value)>-1;
+      card.hidden=!hit;
+      if(hit)visible++;
+    });
+    groups.forEach(function(group){
+      group.hidden=!group.querySelector('.inventory-card:not([hidden])');
+    });
+    count.textContent=value ? visible+' of '+cards.length+' skills' : '';
+  }
+  input.addEventListener('input',run);
+})();
+</script>`;
+
+  return layout({
+    title: "Production skills map - skills.henryzh.dev",
+    description: `A production workflow and categorized inventory of ${inventory.length} installed agent skills.`,
+    body,
+    page: "map",
+    footerNote: `Installed snapshot ${updated}. Repository skills are refreshed during every build.`,
+  });
+}
+
 function firstSentence(text = "") {
   const m = text.match(/^(.*?[.!?])(\s|$)/);
   let s = (m ? m[1] : text).trim();
@@ -305,11 +537,28 @@ function build() {
   const skills = collectSkills();
   const readme = parseReadme();
   const mine = loadMine();
+  const snapshot = loadInstalledSnapshot();
+  const inventory = buildInventory(skills, snapshot);
 
   rmSync(DIST, { recursive: true, force: true });
   mkdirSync(DIST, { recursive: true });
 
   writeFileSync(join(DIST, "index.html"), indexPage(skills, readme, mine));
+  const mapDirectory = join(DIST, "map");
+  mkdirSync(mapDirectory, { recursive: true });
+  writeFileSync(join(mapDirectory, "index.html"), mapPage(inventory, snapshot));
+  writeFileSync(join(DIST, "skills.json"), `${JSON.stringify({
+    updatedAt: snapshot.updatedAt,
+    count: inventory.length,
+    skills: inventory.map(({ name, description, sources, copies, repoSlug, category }) => ({
+      name,
+      description,
+      sources,
+      copies,
+      repoSlug,
+      category,
+    })),
+  }, null, 2)}\n`);
   writeFileSync(join(DIST, "style.css"), CSS);
 
   for (const s of skills) {
@@ -326,7 +575,7 @@ function build() {
     page: "home",
   }));
 
-  console.log(`Built ${skills.length} skills + index → ${DIST}`);
+  console.log(`Built ${skills.length} repository skills and ${inventory.length} installed skills → ${DIST}`);
 }
 
 const CSS = readFileSync(join(__dirname, "style.css"), "utf8");
