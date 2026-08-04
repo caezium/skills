@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-23T16:09:29.280Z",
+  "updatedAt": "2026-08-04T03:17:02.501Z",
   "skills": [
     {
       "name": "1-1-prep",
@@ -36,6 +36,14 @@
       "copies": 1
     },
     {
+      "name": "app-store-preflight-compliance",
+      "description": "Pre-submission compliance scanner workflow for Apple App Store apps.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "art-skill-maker",
       "description": "Create reusable Codex art and illustration skills from reference images, existing art-skill repositories, avatar IPs, style notes, or successful prompts.",
       "sources": [
@@ -62,6 +70,14 @@
     {
       "name": "brandkit",
       "description": "Premium brand-kit image generation skill for creating high-end brand-guidelines boards, logo systems, identity decks, and visual-world presentations.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "bro",
+      "description": "Restate the last message in plain human language, with no jargon.",
       "sources": [
         "personal"
       ],
@@ -138,6 +154,30 @@
       "description": "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?).",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "computer-use",
+      "description": "Control local Mac apps through Computer Use for tasks that require reading or operating app UI.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "consult-first",
+      "description": "Consult the user before making consequential product or design decisions, drafting a substantive plan or document, or implementing a nontrivial change whose direction is not settled.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "control-chrome",
+      "description": "Control the user's Chrome browser for tasks that depend on existing Chrome state: tabs, logged-in sessions, or extensions.",
+      "sources": [
+        "plugin"
       ],
       "copies": 1
     },
@@ -388,6 +428,14 @@
     {
       "name": "high-end-visual-design",
       "description": "Teaches the AI to design like a high-end agency.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "i-have-adhd",
+      "description": "Shape output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible.",
       "sources": [
         "personal"
       ],
@@ -834,7 +882,7 @@
     },
     {
       "name": "openai-docs",
-      "description": "Use when the user asks how to build with OpenAI products or APIs, asks about Codex itself or choosing Codex surfaces, needs up-to-date official documentation with citations, help choosing the latest model for a use case, or model upgrade and prompt-upgrade guidance; use...",
+      "description": "Use when the user asks how to build with OpenAI products or APIs, asks about Codex itself or choosing Codex surfaces, needs up-to-date official documentation with citations, help choosing the latest model for a use case, latest/current/default-model prompting guidance, or...",
       "sources": [
         "codex"
       ],
@@ -958,6 +1006,14 @@
       "copies": 2
     },
     {
+      "name": "review-agent",
+      "description": "Perform a read-only, defect-first review of a specified code change and return every actionable finding.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "sandbox-sdk",
       "description": "Build sandboxed applications for secure code execution.",
       "sources": [
@@ -1072,6 +1128,14 @@
         "shared"
       ],
       "copies": 2
+    },
+    {
+      "name": "swiftui-expert-skill",
+      "description": "Use when writing, reviewing, or refactoring SwiftUI code for iOS or macOS, including state management and `@Observable` data flow, view composition and invalidation/performance, lists and `ForEach` identity, environment usage, localization, animations, Liquid Glass adoption,...",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
     },
     {
       "name": "tdd",
