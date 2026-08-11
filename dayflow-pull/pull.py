@@ -21,8 +21,17 @@ import argparse
 import os
 import sqlite3
 import sys
+import time
 from collections import defaultdict
 from datetime import date, timedelta
+
+# The Mac is on Asia/Hong_Kong (UTC+8); the Claude Code sandbox shell defaults to
+# America/Los_Angeles, which silently shifts "today" back a day and displays card
+# clock-times ~15h off. Pin to the user's zone so day boundaries + times match his.
+# (Per-day merged HOURS are timezone-independent regardless — grouped by Dayflow's
+# own `day` column and summed from absolute unix durations.)
+os.environ["TZ"] = "Asia/Hong_Kong"
+time.tzset()
 
 DB = os.path.expanduser("~/Library/Application Support/Dayflow/chunks.sqlite")
 MAX_CARD_S = 3 * 3600  # a single "activity" card longer than this is treated as a glitch
