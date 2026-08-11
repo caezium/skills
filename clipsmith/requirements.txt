@@ -1,0 +1,7 @@
+numpy
+scipy
+librosa
+soundfile
+opencv-python
+scenedetect
+Pillow

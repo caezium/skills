@@ -19,3 +19,11 @@ local.private.md
 # Per-machine sync run state; keep declarative state such as commits.yaml tracked.
 dayflow-sync/state/last-*
 stats-sync/state/
+
+# clipsmith: machine-local Python env and scratch frame extractions
+clipsmith/.venv/
+clipsmith/clipsmith_frames/
+
+# nvidia-kaggle-skill: locally scraped Kaggle discussion/kernel caches
+nvidia-kaggle-skill/data/*.db
+nvidia-kaggle-skill/scripts/data/*.db

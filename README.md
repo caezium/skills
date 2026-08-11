@@ -40,6 +40,7 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **triage** — Triage a bug or issue to root cause, then plan a TDD-based fix.
 - **app-screenshots** — Capture and curate screenshots of a GUI desktop app for a README, landing page, or docs.
 - **nib** — Turn an idea or article into original hand-drawn editorial illustrations starring a recurring avatar you own.
+- **clipsmith** — Plan and run a custom video-editing pipeline from a plain-language brief: highlight reels, jump-cuts, captions, beat-synced and vertical edits.
 
 ### Platform & Operations
 
@@ -112,6 +113,7 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 
 - **last30days** — Deep research engine covering the last 30 days across 10+ sources.
 - **digest** — Aggregate top RSS feeds into a daily tech recap.
+- **nvidia-kaggle-skill** — Kaggle competition research and submission workflow: overview fetches, writeups, discussion/kernel mining, and dataset uploads.
 
 ### Productivity / Weekly
 
