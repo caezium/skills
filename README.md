@@ -18,18 +18,28 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 
 ### Planning & Design
 
+- **consult-first** — Surface the unsettled product and design decisions and get a ruling before freezing them into a deliverable.
 - **design-an-interface** — Generate multiple radically different interface designs for a module using parallel sub-agents.
 - **grill-me** — Get relentlessly interviewed about a plan or design until every branch is resolved.
+- **grilling** — Stress-test a plan before building; triggers on any "grill" phrasing.
+- **grill-with-docs** — The same relentless interview, but it writes the ADRs and glossary as it goes.
+- **domain-modeling** — Pin down a project's ubiquitous language and record architectural decisions.
 - **write-a-prd** — Create a PRD through user interview, codebase exploration, and module design, then submit as a GitHub issue.
 - **prd-to-plan** — Turn a PRD into a multi-phase implementation plan using tracer-bullet vertical slices.
 - **prd-to-issues** — Break a PRD into independently-grabbable GitHub issues using vertical slices.
 - **request-refactor-plan** — Create a detailed refactor plan with tiny commits via user interview, then file as a GitHub issue.
 - **triage-issue** — Investigate a bug by exploring the codebase, identify root cause, and file a GitHub issue with a TDD-based fix plan.
+- **to-spec** — Turn the current conversation into a spec on the issue tracker — synthesis, no interview.
+- **to-tickets** — Break a plan or conversation into tracer-bullet tickets, each declaring its blocking edges.
 - **throughline** — Publish an implementation plan as a live HTML URL the user can read on their phone, with a Markdown/JSON handoff.
 
 ### Development
 
 - **tdd** — Test-driven development with red-green-refactor loop.
+- **implement** — Build a piece of work from an approved spec or set of tickets.
+- **code-review** — Review changes since a fixed point along two axes at once: repo coding standards and the originating spec.
+- **clone-site** — Clone any URL into a pixel-faithful Next.js codebase: asset/CSS extraction, parallel section builders, animation porting, fidelity verification.
+- **tldraw-offline** — Drive the offline tldraw canvas app: inspect, edit, arrange, connect, lint, and script `.tldraw` files.
 - **improve-codebase-architecture** — Find deepening opportunities, informed by domain language and ADRs.
 - **scaffold-exercises** — Create exercise directory structures with sections, problems, solutions, and explainers.
 - **make-interfaces-feel-better** — Design engineering principles for polished interfaces (animations, hover states, typography, micro-interactions).
@@ -52,6 +62,11 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **cloudflare-email-service** — Build transactional sending and inbound routing with Cloudflare Email Service.
 - **sandbox-sdk** — Build secure code execution and interpreter workflows with Cloudflare Sandbox SDK.
 - **web-perf** — Audit Core Web Vitals and diagnose browser performance with Chrome DevTools.
+
+### Apple Platforms
+
+- **swiftui-expert-skill** — SwiftUI state and `@Observable` data flow, view invalidation and performance, `ForEach` identity, Liquid Glass adoption, and Instruments `.trace` analysis.
+- **greenlight** — Scan an iOS/macOS/tvOS/watchOS/visionOS project for App Store rejection risks before you submit.
 
 ### Frontend Best Practices
 
@@ -88,6 +103,8 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 - **update-cursor-settings** — Cursor: modify Cursor settings.
 - **shell** — Cursor: shell command helper.
 - **install-skill** — Install a freshly authored skill into the repo, symlink it into the agent dirs, and commit + push.
+- **writing-great-skills** — Reference for writing and editing skills well: the vocabulary and principles that make a skill predictable.
+- **setup-matt-pocock-skills** — One-time repo setup for the engineering skills: issue tracker, triage label vocabulary, domain doc layout.
 - **defuddle** — Extract clean markdown from web pages, stripping clutter and navigation to save tokens.
 - **dayflow-sync** — Sync the caezium/Dayflow fork with upstream: rebase, audit, build, and stop for a pre-install checkpoint.
 - **stats-sync** — Sync the caezium/stats fork with upstream: rebase, audit, test, build, and stop before install.
@@ -106,14 +123,24 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 - **obsidian-bases** — Create and edit Obsidian Bases (.base) with views, filters, formulas, and summaries.
 - **obsidian-convert** — Convert PDFs/DOCX into Obsidian markdown notes, preserving content verbatim.
 - **json-canvas** — Create and edit JSON Canvas (.canvas) files: nodes, edges, groups, mind maps, flowcharts.
+- **vault-resync** — Re-pull every external capture source (Feishu, WeChat, Zen tabs, live Claude sessions) into the Obsidian inbox and refresh the Command Center dashboards.
 - **chatlog** — Query your own WeChat (微信) history through the local chatlog HTTP API.
-- **dialectic-digest** — Generate a dialectic-style digest.
 
 ### Research & Reporting
 
 - **last30days** — Deep research engine covering the last 30 days across 10+ sources.
 - **digest** — Aggregate top RSS feeds into a daily tech recap.
 - **nvidia-kaggle-skill** — Kaggle competition research and submission workflow: overview fetches, writeups, discussion/kernel mining, and dataset uploads.
+
+### Session & Output
+
+Skills that shape the conversation itself rather than the code. The last three are `/`-invoked only (`disable-model-invocation: true`), so they never fire on their own:
+
+- **recap** — Consolidate everything that changed this session into one authoritative message plus a hand-test checklist.
+- **playbook** — Pick the right ordered sequence of skills for the job, announce it, and name the next one after each stage.
+- **handoff** — Compact the current conversation into a handoff document for another agent to pick up.
+- **i-have-adhd** — Lead with the next action, number multi-step work, restate state, suppress tangents. Stays on until "stop adhd mode".
+- **bro** — Restate the last message in plain human language, no jargon.
 
 ### Productivity / Weekly
 
@@ -129,7 +156,7 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 Single-file prompts, dropped into `~/.claude/commands/` or `~/.cursor/commands/`:
 
 - **council** — Run a question through 5 AI advisors who peer-review and synthesize a verdict.
-- **dialectic-digest** — Generate a dialectic digest.
+- **dialectic-digest** — Generate a dialectic digest. Has no `SKILL.md`; the `dialectic-digest/` folder holds its prompt and example output.
 - **rams** — Run accessibility and visual design review.
 - **ui-skills** — Apply UI skills constraints.
 - **update-skills-map** — Refresh and validate the full installed-skills map; optionally publish its snapshot.
