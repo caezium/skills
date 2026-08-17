@@ -10,7 +10,7 @@
 # Usage:
 #   bin/sync.sh claude    # symlink into ~/.claude/skills/ and ~/.claude/commands/
 #   bin/sync.sh cursor    # symlink into ~/.cursor/skills/ and ~/.cursor/commands/
-#   bin/sync.sh agents    # symlink into ~/.agents/skills/ for Codex and other agents
+#   bin/sync.sh agents    # symlink into ~/.agents/skills/ + ~/.codex/AGENTS.md for Codex
 #   bin/sync.sh all       # all three
 
 set -euo pipefail
@@ -65,15 +65,17 @@ link_skills_into() {
 }
 
 link_config_into() {
-  local target="$1"   # e.g. ~/.claude/CLAUDE.md
-  local src="$REPO/config/CLAUDE.md"
+  local target="$1"                    # e.g. ~/.claude/CLAUDE.md
+  local name="${2:-CLAUDE.md}"         # which file under config/
+  local src="$REPO/config/$name"
   [ -f "$src" ] || return 0
   if [ -e "$target" ] && [ ! -L "$target" ]; then
-    echo "  SKIP CLAUDE.md (real file at $target — merge it into $src, then remove it)"
+    echo "  SKIP $name (real file at $target — merge it into $src, then remove it)"
     return 0
   fi
+  mkdir -p "$(dirname "$target")"
   ln -sfn "$src" "$target"
-  echo "  config: CLAUDE.md linked"
+  echo "  config: $name linked"
 }
 
 # Throttled git sync (at most once/hour): auto-commit config/ edits, ff-pull,
@@ -88,7 +90,7 @@ autosync_repo() {
     cd "$REPO"
     [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] || { echo "  autosync: skipped (not on main)"; exit 0; }
     if ! git diff --quiet -- config/ || [ -n "$(git ls-files --others --exclude-standard config/)" ]; then
-      git add config/ && git commit -q -m "config: update CLAUDE.md" && echo "  autosync: committed config change"
+      git add config/ && git commit -q -m "config: update agent instructions" && echo "  autosync: committed config change"
     fi
     git fetch -q origin main 2>/dev/null || exit 0
     git merge -q --ff-only origin/main 2>/dev/null && true
@@ -127,8 +129,9 @@ sync_cursor() {
 }
 
 sync_agents() {
-  echo "Shared agents: ~/.agents/skills/"
+  echo "Shared agents: ~/.agents/skills/ + ~/.codex/AGENTS.md"
   link_skills_into "$HOME/.agents/skills"
+  link_config_into "$HOME/.codex/AGENTS.md" AGENTS.md
 }
 
 case "${1:-}" in
