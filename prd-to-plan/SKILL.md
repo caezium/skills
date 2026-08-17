@@ -7,6 +7,10 @@ description: Turn a PRD into a multi-phase implementation plan using tracer-bull
 
 Break a PRD into a phased implementation plan using vertical slices (tracer bullets). Output is a Markdown file in `./plans/`.
 
+## First principles
+
+Please use first-principles thinking. Do not assume that I always know exactly what I want and how to achieve it. Be prudent and start from the original needs and problems. If my motivations or goals are unclear, pause and discuss with me. If the goals are clear but the path is not the shortest, tell me and suggest a better approach.
+
 ## Process
 
 ### 1. Confirm the PRD is in context

@@ -7,6 +7,10 @@ description: Break a PRD into independently-grabbable GitHub issues using tracer
 
 Break a PRD into independently-grabbable GitHub issues using vertical slices (tracer bullets).
 
+## First principles
+
+Please use first-principles thinking. Do not assume that I always know exactly what I want and how to achieve it. Be prudent and start from the original needs and problems. If my motivations or goals are unclear, pause and discuss with me. If the goals are clear but the path is not the shortest, tell me and suggest a better approach.
+
 ## Process
 
 ### 1. Locate the PRD

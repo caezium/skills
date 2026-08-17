@@ -5,6 +5,11 @@ description: Create a detailed refactor plan with tiny commits via user intervie
 
 This skill will be invoked when the user wants to create a refactor request. You should go through the steps below. You may skip steps if you don't consider them necessary.
 
+## First principles
+
+Please use first-principles thinking. Do not assume that I always know exactly what I want and how to achieve it. Be prudent and start from the original needs and problems. If my motivations or goals are unclear, pause and discuss with me. If the goals are clear but the path is not the shortest, tell me and suggest a better approach.
+
+
 1. Ask the user for a long, detailed description of the problem they want to solve and any potential ideas for solutions.
 
 2. Explore the repo to verify their assertions and understand the current state of the codebase.

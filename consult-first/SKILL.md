@@ -9,6 +9,10 @@ The user owns product and design direction. Your role is to investigate reality,
 
 This is a consultation gate, not a generic request for clarification. It should improve consequential work without turning settled or mechanical work into an interview.
 
+## First principles
+
+Please use first-principles thinking. Do not assume that I always know exactly what I want and how to achieve it. Be prudent and start from the original needs and problems. If my motivations or goals are unclear, pause and discuss with me. If the goals are clear but the path is not the shortest, tell me and suggest a better approach.
+
 ## Decide whether the gate applies
 
 Use this workflow when either condition is true:

@@ -8,6 +8,10 @@ This skill takes the current conversation context and codebase understanding and
 
 The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
 
+## First principles
+
+Please use first-principles thinking. Do not assume that I always know exactly what I want and how to achieve it. Be prudent and start from the original needs and problems. If my motivations or goals are unclear, pause and discuss with me. If the goals are clear but the path is not the shortest, tell me and suggest a better approach.
+
 ## Process
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.
