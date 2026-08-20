@@ -100,10 +100,16 @@ mkdir -p "$check_repo/skill-one"
 git -C "$TEST_TMP" init -q -b main check-repo
 git_identity "$check_repo"
 printf '%s\n' '---' 'name: skill-one' 'description: Check fixture.' '---' > "$check_repo/skill-one/SKILL.md"
-git -C "$check_repo" add skill-one/SKILL.md
+printf '%s\n' 'skill-one/runtime/' > "$check_repo/.gitignore"
+git -C "$check_repo" add .gitignore skill-one/SKILL.md
 git -C "$check_repo" commit -q -m initial
 check_sha="$(git -C "$check_repo" rev-parse HEAD)"
 check_hash="$(env PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/bin/hash-skill-tree.py" "$check_repo/skill-one")"
+mkdir -p "$check_repo/skill-one/runtime"
+printf '%s\n' 'generated cache' > "$check_repo/skill-one/runtime/cache.db"
+check_hash_with_ignored="$(env PYTHONDONTWRITEBYTECODE=1 python3 "$ROOT/bin/hash-skill-tree.py" "$check_repo/skill-one")"
+[ "$check_hash" = "$check_hash_with_ignored" ] || fail "tree hash included Git-ignored runtime content"
+pass "Git-ignored runtime content does not cause false drift"
 check_lock="$TEST_TMP/check.lock.json"
 cat > "$check_lock" <<EOF
 {

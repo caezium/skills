@@ -8,16 +8,62 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 
 
 IGNORED_DIRS = {".git", ".pytest_cache", "__pycache__"}
 IGNORED_FILES = {".DS_Store"}
 
 
-def digest_tree(root: Path) -> str:
-    if not root.is_dir():
-        raise ValueError(f"not a directory: {root}")
-    digest = hashlib.sha256()
+def git_visible_paths(root: Path) -> list[Path] | None:
+    """Return tracked and non-ignored untracked files when root is in Git."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        repo = Path(result.stdout.strip()).resolve()
+        relative_root = root.relative_to(repo)
+        listing = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo),
+                "ls-files",
+                "-z",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "--",
+                relative_root.as_posix(),
+            ],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError, ValueError):
+        return None
+
+    paths: list[Path] = []
+    for raw_path in listing.stdout.split(b"\0"):
+        if not raw_path:
+            continue
+        path = repo / os.fsdecode(raw_path)
+        if not (path.is_file() or path.is_symlink()):
+            continue
+        if path.name in IGNORED_FILES or path.name.endswith(".pyc"):
+            continue
+        if any(part in IGNORED_DIRS for part in path.relative_to(root).parts[:-1]):
+            continue
+        paths.append(path)
+    return paths
+
+
+def filesystem_paths(root: Path) -> list[Path]:
+    """Return files for a portable non-Git skill tree."""
     paths: list[Path] = []
     for current, dirnames, filenames in os.walk(root, topdown=True, followlinks=False):
         dirnames[:] = sorted(name for name in dirnames if name not in IGNORED_DIRS)
@@ -30,6 +76,16 @@ def digest_tree(root: Path) -> str:
             candidate = base / name
             if candidate.is_symlink():
                 paths.append(candidate)
+    return paths
+
+
+def digest_tree(root: Path) -> str:
+    if not root.is_dir():
+        raise ValueError(f"not a directory: {root}")
+    digest = hashlib.sha256()
+    paths = git_visible_paths(root)
+    if paths is None:
+        paths = filesystem_paths(root)
 
     for path in sorted(paths, key=lambda item: item.relative_to(root).as_posix()):
         relative = path.relative_to(root).as_posix().encode("utf-8")
