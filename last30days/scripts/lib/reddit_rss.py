@@ -173,7 +173,7 @@ def _build_urls(query: str, depth: str, subreddits: Optional[List[str]]) -> List
 def _fetch_feed(url: str, query: str) -> List[Dict[str, Any]]:
     """Fetch and parse one feed. Never raises."""
     try:
-        text = http.get_text(url, timeout=FEED_TIMEOUT, accept="application/atom+xml")
+        text = http.reddit_keyless_get_text(url, timeout=FEED_TIMEOUT, accept="application/atom+xml")
         return _parse_feed(text, query) if text else []
     except Exception as e:  # defensive: a single bad feed must not sink the run
         _log(f"feed fetch failed for {url}: {e}")
@@ -203,7 +203,14 @@ def search_rss(
     all_posts: List[Dict[str, Any]] = []
     workers = min(MAX_WORKERS, len(urls)) or 1
     with ThreadPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(_fetch_feed, url, query): url for url in urls}
+        # submit_with_context, not executor.submit: a plain submit starts the
+        # worker with an empty context, dropping the pipeline's
+        # capture_failures() sink so a feed's 429/403 is silently discarded and
+        # the source reports a clean no-results (issue #899).
+        futures = {
+            http.submit_with_context(executor, _fetch_feed, url, query): url
+            for url in urls
+        }
         for future in futures:
             try:
                 all_posts.extend(future.result(timeout=FEED_TIMEOUT + 5))

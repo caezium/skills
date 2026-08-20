@@ -10,7 +10,10 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 ~/skills/
 ├── <skill-name>/SKILL.md       # one folder per skill
 ├── commands/*.md               # slash commands (not skills)
-├── bin/sync.sh                 # symlink helper for Claude / Cursor / shared agents
+├── skills.lock.json            # source pins, content hashes, and local overlays
+├── bin/sync.sh                 # offline symlink helper for local agent harnesses
+├── bin/check-skill-updates.sh  # read-only integrity and upstream-drift audit
+├── bin/fast-forward-skills.sh  # explicit clean-checkout update helper
 └── README.md
 ```
 
@@ -31,6 +34,8 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **triage-issue** — Investigate a bug by exploring the codebase, identify root cause, and file a GitHub issue with a TDD-based fix plan.
 - **to-spec** — Turn the current conversation into a spec on the issue tracker — synthesis, no interview.
 - **to-tickets** — Break a plan or conversation into tracer-bullet tickets, each declaring its blocking edges.
+- **wayfinder** — Navigate a large, foggy effort by resolving decision tickets before pretending the work is implementable.
+- **prototype** — Build disposable runnable prototypes to answer consequential design or technical questions.
 - **throughline** — Publish an implementation plan as a live HTML URL the user can read on their phone, with a Markdown/JSON handoff.
 
 ### Development
@@ -38,6 +43,8 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **tdd** — Test-driven development with red-green-refactor loop.
 - **implement** — Build a piece of work from an approved spec or set of tickets.
 - **code-review** — Review changes since a fixed point along two axes at once: repo coding standards and the originating spec.
+- **diagnosing-bugs** — Reproduce, minimize, hypothesize, instrument, fix, and regression-test difficult failures.
+- **codebase-design** — Design deep modules with small interfaces, hidden complexity, and testable boundaries.
 - **clone-site** — Clone any URL into a pixel-faithful Next.js codebase: asset/CSS extraction, parallel section builders, animation porting, fidelity verification.
 - **tldraw-offline** — Drive the offline tldraw canvas app: inspect, edit, arrange, connect, lint, and script `.tldraw` files.
 - **improve-codebase-architecture** — Find deepening opportunities, informed by domain language and ADRs.
@@ -48,6 +55,11 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **prune** — Audit a codebase for dead code, duplication, and cruft, then safely remove what no longer earns its place.
 - **qa** — Interactive QA session: report bugs conversationally while the agent files GitHub issues with codebase context.
 - **triage** — Triage a bug or issue to root cause, then plan a TDD-based fix.
+- **blast-radius** — Prove the runtime safety fact most likely to fail when a change crosses boundaries.
+- **create-verification-skill** — Build a reusable project-local feature map and live verification recipe.
+- **maintain-verification-skill** — Update a project's verification skill as its surfaces and workflows drift.
+- **swarm** — Run isolated parallel agents with a coverage matrix, resource budget, output contracts, and a root aggregator.
+- **interrogate** — Run an adversarial multi-agent review panel against an implementation, plan, or claim.
 - **app-screenshots** — Capture and curate screenshots of a GUI desktop app for a README, landing page, or docs.
 - **nib** — Turn an idea or article into original hand-drawn editorial illustrations starring a recurring avatar you own.
 - **clipsmith** — Plan and run a custom video-editing pipeline from a plain-language brief: highlight reels, jump-cuts, captions, beat-synced and vertical edits.
@@ -60,13 +72,15 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **workers-best-practices** — Author and review production Workers code against current platform practices.
 - **wrangler** — Use the Wrangler CLI across Workers, storage, AI, queues, workflows, and containers.
 - **cloudflare-email-service** — Build transactional sending and inbound routing with Cloudflare Email Service.
-- **sandbox-sdk** — Build secure code execution and interpreter workflows with Cloudflare Sandbox SDK.
+- **sandbox-stable** — Build against the current stable Cloudflare Sandbox package without mixing preview APIs.
+- **sandbox-next** — Build new Sandbox SDK 1.0-preview apps on the matching `@next` package and image.
+- **sandbox-migrate-to-next** — Port a stable Sandbox app to the 1.0 preview with explicit cutover checks.
 - **web-perf** — Audit Core Web Vitals and diagnose browser performance with Chrome DevTools.
 
 ### Apple Platforms
 
 - **swiftui-expert-skill** — SwiftUI state and `@Observable` data flow, view invalidation and performance, `ForEach` identity, Liquid Glass adoption, and Instruments `.trace` analysis.
-- **greenlight** — Scan an iOS/macOS/tvOS/watchOS/visionOS project for App Store rejection risks before you submit.
+- **app-store-preflight-compliance** — Scan an iOS/macOS/tvOS/watchOS/visionOS project for App Store rejection risks before you submit.
 
 ### Frontend Best Practices
 
@@ -78,19 +92,19 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 
 From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAgent/awesome-design-md](https://github.com/VoltAgent/awesome-design-md) (both MIT):
 
-- **taste-skill** — Anti-slop frontend skill for landing pages, portfolios, and redesigns; infers the right design direction and ships non-templated interfaces.
-- **taste-skill-v1** — The original v1 taste-skill, preserved for backward compatibility.
-- **gpt-tasteskill** — Elite UX/UI + GSAP motion skill: AIDA structure, wide editorial type, bento grids, scroll-driven motion.
-- **soft-skill** — High-end visual design: the exact fonts, spacing, shadows, and animations that make a site feel expensive.
-- **minimalist-skill** — Clean editorial interfaces: warm monochrome, typographic contrast, flat bento grids, no gradients.
-- **brutalist-skill** — Raw industrial-brutalist UI: rigid grids, extreme type contrast, analog degradation, declassified-blueprint feel.
+- **design-taste-frontend** — Anti-slop frontend skill for landing pages, portfolios, and redesigns; infers the right design direction and ships non-templated interfaces.
+- **design-taste-frontend-v1** — The original v1 taste skill, preserved for backward compatibility.
+- **gpt-taste** — Elite UX/UI + GSAP motion skill: AIDA structure, wide editorial type, bento grids, scroll-driven motion.
+- **high-end-visual-design** — High-end visual design: the exact fonts, spacing, shadows, and animations that make a site feel expensive.
+- **minimalist-ui** — Clean editorial interfaces: warm monochrome, typographic contrast, flat bento grids, no gradients.
+- **industrial-brutalist-ui** — Raw industrial-brutalist UI: rigid grids, extreme type contrast, analog degradation, declassified-blueprint feel.
 - **brandkit** — Premium brand-kit image generation: logo systems, identity decks, and visual-world boards.
-- **stitch-skill** — Generate agent-friendly DESIGN.md files enforcing premium, anti-generic UI standards (for Google Stitch).
-- **redesign-skill** — Upgrade existing sites/apps to premium quality; audit generic AI patterns and fix without breaking functionality.
-- **image-to-code-skill** — Image-to-code for Codex: generate the design image, analyze it, then build the site to match.
+- **stitch-design-taste** — Generate agent-friendly DESIGN.md files enforcing premium, anti-generic UI standards (for Google Stitch).
+- **redesign-existing-projects** — Upgrade existing sites/apps to premium quality; audit generic AI patterns and fix without breaking functionality.
+- **image-to-code** — Image-to-code for Codex: generate the design image, analyze it, then build the site to match.
 - **imagegen-frontend-web** — Generate premium per-section website design reference images (one image per section).
 - **imagegen-frontend-mobile** — Generate premium app-native mobile screen concepts and flows inside phone mockups.
-- **output-skill** — Override LLM truncation: enforce complete, unabridged code output and ban placeholders.
+- **full-output-enforcement** — Override LLM truncation: enforce complete, unabridged code output and ban placeholders.
 - **awesome-design-md** — A library of 74 real-brand DESIGN.md design systems (Stripe, Apple, Vercel, Linear, …) to match a brand's look.
 
 ### Tooling & Setup
@@ -116,7 +130,8 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 
 - **find-docs** — Retrieve authoritative, up-to-date technical documentation for any developer technology.
 - **find-skills** — Discover and install agent skills.
-- **skill-creator** — Create, modify, and benchmark skills with optional eval suites.
+- **anthropic-skill-creator** — Create, modify, and benchmark portable or Claude-oriented skills with Anthropic's eval workflow; Codex keeps its own managed `skill-creator`.
+- **writing-for-agents** — Write briefs, pointer docs, acceptance contracts, and context that independent agents can execute reliably.
 - **obsidian-vault** — Search, create, and manage notes in an Obsidian vault.
 - **obsidian-cli** — Interact with Obsidian vaults via the CLI; also plugin/theme development and debugging.
 - **obsidian-markdown** — Author Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties.
@@ -129,18 +144,33 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 ### Research & Reporting
 
 - **last30days** — Deep research engine covering the last 30 days across 10+ sources.
+- **research** — Produce durable, cited technical-research artifacts from primary sources.
 - **digest** — Aggregate top RSS feeds into a daily tech recap.
 - **nvidia-kaggle-skill** — Kaggle competition research and submission workflow: overview fetches, writeups, discussion/kernel mining, and dataset uploads.
+- **kaggle-grind** — Run a CV-first, OOF-driven, resume-safe Kaggle competition loop with honest acceptance gates.
 
 ### Session & Output
 
-Skills that shape the conversation itself rather than the code. The last three are `/`-invoked only (`disable-model-invocation: true`), so they never fire on their own:
+Skills that shape the conversation itself rather than the code. `playbook`, `handoff`, `i-have-adhd`, and `bro` are `/`-invoked only (`disable-model-invocation: true`), so they never fire on their own:
 
 - **recap** — Consolidate everything that changed this session into one authoritative message plus a hand-test checklist.
 - **playbook** — Pick the right ordered sequence of skills for the job, announce it, and name the next one after each stage.
 - **handoff** — Compact the current conversation into a handoff document for another agent to pick up.
+- **henry-mode** — Route long-running cross-session work through recall, consultation, proof, swarms, evidence trails, and reflection.
+- **recall** — Reconstruct relevant work across Claude, Codex, backups, and current repository state.
+- **show-me-your-work** — Keep a durable decision, evidence, dead-end, and recovery trail during expensive or autonomous work.
+- **reflect** — Turn surprising or costly work into a reviewed test, script, rule, skill, or architectural improvement.
 - **i-have-adhd** — Lead with the next action, number multi-step work, restate state, suppress tangents. Stays on until "stop adhd mode".
 - **bro** — Restate the last message in plain human language, no jargon.
+
+### Engineering Principles
+
+Portable principles adapted from pstack and used by `henry-mode`:
+
+- **principle-prove-it-works** — Treat runtime evidence, not confidence or proxies, as the completion condition.
+- **principle-guard-the-context-window** — Delegate exploration and return compact conclusions plus artifact pointers.
+- **principle-build-the-lever** — Prefer a rerunnable tool or harness over repeated one-off labor.
+- **principle-sequence-verifiable-units** — Decompose work into independently provable units that leave useful state.
 
 ### Productivity / Weekly
 
@@ -244,8 +274,22 @@ Instructions for the agent. Reference supporting files like [details.md](details
 
 ## Origins
 
-Skills here come from a mix of sources — npx-installed (`mattpocock/skills`, `claude-skills-weekly`, `tech-digest`, `dialectic-digest`, `last30days`), Cursor's built-in tooling skills, and Anthropic's `skill-creator`. Each `SKILL.md` retains its original frontmatter for attribution. This repo is a personal aggregator, not a redistribution.
+This is a personal aggregator of Henry-authored skills and reviewed third-party packages. `skills.lock.json` records each skill's source, pinned upstream commit when known, content hash, state, and any local portability overlay. Third-party license texts live in `licenses/`, while packages that require their own license retain it in the skill directory. The main tracked sources include `mattpocock/skills`, pstack from `cursor/plugins`, Cloudflare's skills, `last30days`, Anthropic's skill creator, `Leonxlnx/taste-skill`, and `VoltAgent/awesome-design-md`.
 
-## Global config sync
+Two legacy sources do not publish a standard license: `er1chu/claude-skills-weekly` (the six weekly-workflow skills) and `dmmulroy/.dotfiles` (`bro`). Their attribution and exact provenance are retained, but this remains license debt: seek explicit permission or replace them before redistributing the repository beyond personal use.
 
-`config/CLAUDE.md` is the global `~/.claude/CLAUDE.md` (git rules + writing style). `bin/sync.sh claude` symlinks it into place and auto-commits/pushes edits (throttled, once/hour, main only). On a new machine: clone this repo to `~/skills`, add the SessionStart hook running `~/skills/bin/sync.sh claude`, and if a real `~/.claude/CLAUDE.md` already exists, merge it into `config/CLAUDE.md` and delete it so the symlink can take over.
+An upstream advance is a review signal, not an automatic overwrite: refresh the complete affected package, reapply and document intentional overlays, validate it, update the pin and hashes atomically, then commit the package and lock together.
+
+## Global config and update flow
+
+`config/CLAUDE.md` is the canonical global `~/.claude/CLAUDE.md`, and `config/AGENTS.md` is the canonical global `~/.codex/AGENTS.md`. `bin/sync.sh all` links those files plus every canonical skill into Claude, Cursor, and shared-agent discovery. The command is deterministic and offline: it never fetches, commits, merges, or pushes, and it preserves real-file collisions for explicit review.
+
+On either machine, use this order:
+
+```sh
+~/skills/bin/fast-forward-skills.sh
+~/skills/bin/check-skill-updates.sh
+~/skills/bin/sync.sh all
+```
+
+The fast-forward helper only updates a clean `main` checkout when the remote is a strict descendant. The checker is read-only and reports source drift, content-hash drift, stale discovery links, and collisions. Review and vendor upstream changes on one machine, commit the package and lock together, then use the same three commands on the other machine. If a real global config already exists on a new machine, merge it into the tracked config before replacing it with a symlink.

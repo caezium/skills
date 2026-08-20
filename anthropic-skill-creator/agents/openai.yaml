@@ -1,0 +1,3 @@
+interface:
+  display_name: "Anthropic Skill Creator"
+  short_description: "Author and evaluate portable skill bundles"

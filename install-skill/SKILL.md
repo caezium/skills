@@ -1,13 +1,13 @@
 ---
 name: install-skill
-description: Install a freshly authored skill into ~/skills/ (the source-of-truth repo), symlink it into the active agent directories (~/.claude/skills/, ~/.cursor/skills/), and commit + push to the caezium/skills GitHub repo. Use after creating a SKILL.md, when finishing a skill-creator session, or when the user says "install this skill", "wire it up", "register the skill", or "add it to my repo".
+description: Install a freshly authored skill into ~/skills/ (the source-of-truth repo), symlink it into the active agent directories, and commit + push to the caezium/skills GitHub repo. Use after creating a SKILL.md, when finishing an anthropic-skill-creator session, or when the user says "install this skill", "wire it up", "register the skill", or "add it to my repo".
 ---
 
 # Install Skill
 
-Wires a newly authored skill into the user's personal skills repo at `~/skills/`, links it into the active AI coding agents (Claude Code, Cursor) via symlink, and persists it to GitHub at [caezium/skills](https://github.com/caezium/skills).
+Wires a newly authored skill into the user's personal skills repo at `~/skills/`, links it into Claude Code, Cursor, and shared-agent discovery for Codex, and persists it to GitHub at [caezium/skills](https://github.com/caezium/skills).
 
-The user's setup uses **`~/skills/` as the single source of truth**. Agent directories (`~/.claude/skills/`, `~/.cursor/skills/`) hold only symlinks pointing back here. Never copy a skill into the agent directories — always symlink.
+The user's setup uses **`~/skills/` as the single source of truth**. Agent directories (`~/.claude/skills/`, `~/.cursor/skills/`, and `~/.agents/skills/`) hold only symlinks pointing back here. Never copy a canonical skill into the agent directories — always symlink.
 
 ## Where things live
 
@@ -15,9 +15,11 @@ The user's setup uses **`~/skills/` as the single source of truth**. Agent direc
 |---|---|
 | `~/skills/<name>/SKILL.md` | Source of truth — git-tracked, pushed to caezium/skills |
 | `~/skills/commands/<name>.md` | Source of truth for single-file slash commands |
-| `~/skills/bin/sync.sh` | Symlinks `~/skills/*` into `~/.claude/skills/` and/or `~/.cursor/skills/` |
+| `~/skills/skills.lock.json` | Source pin, content digest, update policy, and reviewed local overlays |
+| `~/skills/bin/sync.sh` | Symlinks `~/skills/*` into Claude, Cursor, and shared-agent discovery paths |
 | `~/.claude/skills/<name>` | Symlink → `~/skills/<name>/` |
 | `~/.cursor/skills/<name>` | Symlink → `~/skills/<name>/` |
+| `~/.agents/skills/<name>` | Symlink → `~/skills/<name>/` for Codex and other shared agents |
 
 ## Install workflow
 
@@ -59,16 +61,40 @@ mv <name>.md ~/skills/commands/
 ~/skills/bin/sync.sh all
 ```
 
-Subcommands: `claude`, `cursor`, or `all`. Idempotent — replaces existing symlinks, skips real directories at the target as a safety guard.
+Subcommands: `claude`, `cursor`, `agents`, or `all`. Idempotent — replaces existing symlinks and treats a real-directory collision as a hard error that must be preserved and reconciled first.
 
 After sync, verify:
 
 ```sh
 ls -la ~/.claude/skills/<skill-name>   # should show -> /Users/henry/skills/<skill-name>/
 ls -la ~/.cursor/skills/<skill-name>
+ls -la ~/.agents/skills/<skill-name>
 ```
 
-### Step 4 — Refresh the published skills map
+### Step 4 — Update and validate provenance
+
+Add or update the skill's record in `skills.lock.json`. Record the source URL,
+full upstream commit and source path when known, the update policy, and every
+intentional local overlay. Compute the installed package digest with:
+
+```sh
+python3 ~/skills/bin/hash-skill-tree.py ~/skills/<skill-name>
+```
+
+Place that value in the record's `content.value`, then validate the complete
+lock before committing:
+
+```sh
+python3 ~/skills/bin/validate-skills-lock.py \
+  ~/skills/skills.lock.json \
+  --schema ~/skills/schema/skills-lock.schema.json
+```
+
+Do not change a source pin merely to silence drift: inspect the upstream diff,
+refresh the complete package, reapply reviewed overlays, and update the pin and
+content digest together.
+
+### Step 5 — Refresh the published skills map
 
 Refresh the full-machine inventory before committing. The script deduplicates
 personal, shared-agent, Codex, and plugin skills, then builds and validates the
@@ -82,11 +108,11 @@ Include `site/installed-skills.json` in the same commit when it changed. The
 site deployment workflow rebuilds the repository catalog and the installed
 skills map after the push.
 
-### Step 5 — Commit and push
+### Step 6 — Commit and push
 
 ```sh
 cd ~/skills
-git add <skill-name>/ site/installed-skills.json
+git add <skill-name>/ skills.lock.json site/installed-skills.json
 git commit -m "Add <skill-name>: <one-line purpose>"
 git push
 ```
@@ -99,18 +125,18 @@ Commit message conventions:
 
 Push goes to `main` directly — this is a personal repo, no PR workflow.
 
-### Step 6 — Confirm pickup
+### Step 7 — Confirm pickup
 
-In a **fresh** Claude Code or Cursor session, the skill should appear in the available-skills list. Skills load at session start; runtime additions don't auto-register. Tell the user to restart their session if it's not showing.
+In a **fresh** Claude Code, Codex/T3, or Cursor session, the skill should appear in the available-skills list. Skills load at session start; runtime additions don't auto-register. Tell the user to restart their session if it is not showing.
 
 ## Common gotchas
 
 - **Symlink already points to `~/.agents/skills/<name>`.** That's the legacy npx-install path. `sync.sh` will replace it — `~/skills/` is now the canonical home. Confirm with the user before clobbering if the existing version differs meaningfully.
-- **Real directory at the target.** `sync.sh` refuses to overwrite a real directory at `~/.claude/skills/<name>`. Inspect it; if it's a bundled-skill package (e.g. `claude-skills-weekly`), leave it alone and use a different skill name. If it's a stale copy of this skill, delete it manually then re-sync.
-- **Embedded `.git/` in the skill folder.** If the skill came from a cloned or npx-installed source, it may have its own `.git/`. Strip it before committing or git will track it as a gitlink and clones will see an empty directory:
+- **Real directory at the target.** `sync.sh` refuses to overwrite a real directory in any discovery path. Inspect and compare it, preserve it outside discovery, then choose exactly one owner for the global name before syncing. Never delete an unknown real directory just to make the warning disappear.
+- **Embedded `.git/` in the skill folder.** If the skill came from a cloned or npx-installed source, it may have its own `.git/`. Build the reviewed package from a separate source checkout while excluding `.git`; never delete unresolved source metadata merely to make Git accept the package. For example:
 
   ```sh
-  rm -rf ~/skills/<skill-name>/.git
+  rsync -a --exclude=.git/ <reviewed-source>/ ~/skills/<skill-name>/
   ```
 
 - **Frontmatter typos.** A missing or malformed `---` block makes the skill invisible to the agent. Quick check:
@@ -129,12 +155,14 @@ Skip `~/skills/` (and use a project-local location instead) when:
 - The skill contains secrets, API keys, or private paths — caezium/skills is **public**
 - The skill duplicates existing functionality — search `~/skills/` first; consider editing the existing one
 
-## Quick reference: full install in 5 commands
+## Quick reference
 
 For an already-validated skill folder at `~/skills/<name>/`:
 
 ```sh
-~/skills/bin/sync.sh all
+python3 ~/skills/bin/hash-skill-tree.py ~/skills/<name>
+# Record the digest and provenance in skills.lock.json, then validate the lock.
 ~/skills/bin/update-skills-map.sh
-cd ~/skills && git add <name>/ site/installed-skills.json && git commit -m "Add <name>: <purpose>" && git push
+~/skills/bin/sync.sh all
+cd ~/skills && git add <name>/ skills.lock.json site/installed-skills.json && git commit -m "Add <name>: <purpose>" && git push
 ```

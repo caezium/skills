@@ -33,9 +33,9 @@ export class MyWorkflow extends WorkflowEntrypoint<Env, Params> {
       return await this.env.DB.prepare('SELECT * FROM users WHERE id = ?')
         .bind(event.payload.userId).first();
     });
-
+    
     await step.sleep('wait 7 days', '7 days');
-
+    
     await step.do('send reminder', async () => {
       await sendEmail(user.email, 'Reminder!');
     });
@@ -62,7 +62,7 @@ These reference files cover API shapes, code patterns, and debugging — things 
 
 ## Reading Order
 
-**Getting Started:** configuration.md → api.md → patterns.md
+**Getting Started:** configuration.md → api.md → patterns.md  
 **Troubleshooting:** gotchas.md
 
 ## In This Reference

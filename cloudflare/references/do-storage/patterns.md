@@ -137,13 +137,13 @@ export class Workspace extends DurableObject {
     const childId = this.env.DOCUMENT.idFromName(`${this.ctx.id.toString()}:${docId}`);
     const childStub = this.env.DOCUMENT.get(childId);
     await childStub.initialize(name);
-
+    
     // Track child in parent storage
-    this.sql.exec('INSERT INTO documents (id, name, created) VALUES (?, ?, ?)',
+    this.sql.exec('INSERT INTO documents (id, name, created) VALUES (?, ?, ?)', 
       docId, name, Date.now());
     return docId;
   }
-
+  
   async listDocuments(): Promise<string[]> {
     return this.sql.exec('SELECT id FROM documents').toArray().map(r => r.id);
   }
@@ -167,7 +167,7 @@ async updateMetrics(userId: string, actions: Action[]) {
   // All writes coalesce - no await needed
   for (const action of actions) {
     this.ctx.storage.put(`user:${userId}:lastAction`, action.type);
-    this.ctx.storage.put(`user:${userId}:count`,
+    this.ctx.storage.put(`user:${userId}:count`, 
       await this.ctx.storage.get(`user:${userId}:count`) + 1);
   }
   // Output gate ensures all writes confirm before response

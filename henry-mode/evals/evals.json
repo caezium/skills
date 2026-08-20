@@ -1,0 +1,23 @@
+{
+  "skill_name": "henry-mode",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Resume the OpenLap ghost-overlay work from my old Claude and Codex sessions, verify what is actually implemented, then continue without losing the current evidence trail.",
+      "expected_output": "Routes through recall, current-state verification, an evidence trail, the appropriate implementation/debugging path, and a verified handoff if unfinished.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run a worker fleet against this Kaggle idea until the acceptance harness proves a gain. Keep workers isolated and make it recoverable if the session dies.",
+      "expected_output": "Uses swarm, writing-for-agents, explicit proof gates, isolated state, show-me-your-work, context guarding, and a recovery checkpoint without expanding authority.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Rename this local variable and run the existing unit test.",
+      "expected_output": "Does not invoke Henry mode because the task is small and self-contained.",
+      "files": []
+    }
+  ]
+}

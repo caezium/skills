@@ -1,0 +1,7 @@
+# Preserve intentional Markdown hard-break whitespace in vendored Cloudflare docs.
+agents-sdk/**/*.md whitespace=-blank-at-eol,-blank-at-eof
+cloudflare/**/*.md whitespace=-blank-at-eol,-blank-at-eof
+durable-objects/**/*.md whitespace=-blank-at-eol,-blank-at-eof
+sandbox-migrate-to-next/**/*.md whitespace=-blank-at-eol,-blank-at-eof
+sandbox-next/**/*.md whitespace=-blank-at-eol,-blank-at-eof
+sandbox-stable/**/*.md whitespace=-blank-at-eol,-blank-at-eof
