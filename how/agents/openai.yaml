@@ -1,0 +1,3 @@
+interface:
+  display_name: "How"
+  short_description: "Explain a subsystem and runtime flow"

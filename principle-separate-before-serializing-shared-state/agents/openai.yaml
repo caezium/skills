@@ -1,0 +1,5 @@
+interface:
+  display_name: "Separate Shared State"
+  short_description: "Remove concurrent write collisions"
+policy:
+  allow_implicit_invocation: false

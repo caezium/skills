@@ -1,5 +1,5 @@
 ---
-description: Refresh and validate the installed-skills HTML map; pass "publish" to commit and push only the generated snapshot.
+description: Refresh and validate the installed-skills HTML map without committing or pushing it.
 ---
 
 # Update Skills Map
@@ -11,12 +11,6 @@ site:
 ~/skills/bin/update-skills-map.sh
 ```
 
-If the user passed the exact argument `publish`, run this instead:
-
-```sh
-~/skills/bin/update-skills-map.sh --push
-```
-
-Do not stage, commit, or modify unrelated working-tree changes. Report the
-number of unique skills, whether any skills landed in `Needs review`, and
-whether the snapshot was only generated locally or pushed for deployment.
+Do not stage, commit, push, or modify unrelated working-tree changes. Report
+the number of unique skills, whether any skills landed in `Needs review`, and
+the path to the locally generated snapshot so the user can review it.

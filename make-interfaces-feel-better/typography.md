@@ -34,21 +34,33 @@ h1 {
 
 ### text-wrap: pretty
 
-Optimizes the last line to avoid orphans using a slower algorithm that favors better typography over performance. Unlike `balance`, it works on longer text — use this for body copy where you want to minimize orphans without the 6-line limit.
+Prevents orphaned words (a single word dangling on the last line) by adjusting line breaks throughout the paragraph. Unlike `balance`, it doesn't try to equalize line lengths — it just ensures the last line isn't embarrassingly short. Works on text of any length with no line-count limit.
+
+This should be your **default for short-to-medium text** — paragraphs, descriptions, captions, list items, card text. For very long text (10+ lines), skip both `pretty` and `balance` — the browser's default wrapping is fine and you avoid unnecessary layout cost.
 
 ```css
-p {
+/* Good — descriptions, captions, short paragraphs */
+p, li, figcaption, blockquote {
   text-wrap: pretty;
 }
 ```
+
+```tsx
+// Tailwind
+<p className="text-pretty">
+  A short paragraph that won't leave an orphan on the last line.
+</p>
+```
+
+**Tailwind:** `text-pretty`
 
 ### When to Use Which
 
 | Scenario | Use |
 | --- | --- |
-| Headings, titles, short text (≤6 lines) | `text-wrap: balance` |
-| Body paragraphs, descriptions | `text-wrap: pretty` |
-| Code blocks, pre-formatted text | Neither — leave default |
+| Headings, titles where even distribution matters | `text-wrap: balance` |
+| Short-to-medium text — paragraphs, descriptions, captions, UI text | `text-wrap: pretty` |
+| Long text (10+ lines), code blocks, pre-formatted text | Neither — leave default |
 
 ## Font Smoothing (macOS)
 
@@ -85,6 +97,28 @@ html {
 ```
 
 **Note:** This only affects macOS rendering. Other platforms ignore these properties, so it's safe to apply universally.
+
+## Font Family Scope
+
+This skill does not require a specific font family. Do not introduce a paid or proprietary typeface just to satisfy the polish checklist.
+
+Use the product's existing type system unless the task explicitly asks for a type change. If the design calls for a system-native macOS feel, use the system font stack. If the design calls for a commercial face such as Helvetica Now, treat it as an optional brand decision and keep a practical fallback stack.
+
+```css
+/* System-native macOS/iOS feel */
+html {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+```
+
+```css
+/* Commercial brand face with safe fallbacks */
+html {
+  font-family: "Helvetica Now", "Helvetica Neue", Arial, sans-serif;
+}
+```
+
+**Rule:** font smoothing, text wrapping, and tabular numbers are rendering details. They do not override the project's chosen font family.
 
 ## Tabular Numbers
 

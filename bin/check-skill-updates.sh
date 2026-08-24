@@ -59,6 +59,7 @@ command -v python3 >/dev/null 2>&1 || {
 
 python3 "$SCRIPT_DIR/validate-skills-lock.py" "$LOCKFILE" --schema "$SCHEMA" || exit 2
 [ "$LOCK_ONLY" = false ] || exit 0
+python3 "$SCRIPT_DIR/validate-skill-tree.py" --root "$REPO" || exit 2
 
 if ! git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1; then
   echo "ERROR canonical path is not a Git repository: $REPO" >&2
@@ -161,12 +162,32 @@ while IFS=$'\t' read -r name state; do
       attention "MISSING discovery link $target"
     fi
   done
+  legacy_codex="$TARGET_HOME/.codex/skills/$name"
+  if [ -e "$legacy_codex" ] || [ -L "$legacy_codex" ]; then
+    attention "DUPLICATE $legacy_codex shadows the shared-agent copy; archive it with reconcile-discovery-paths.py"
+  fi
 done < <(python3 - "$LOCKFILE" <<'PY'
 import json, sys
 for skill in json.load(open(sys.argv[1], encoding="utf-8"))["skills"]:
     print(f"{skill['name']}\t{skill['state']}")
 PY
 )
+
+external_lock="$TARGET_HOME/.agents/.skill-lock.json"
+if [ -f "$external_lock" ]; then
+  while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    attention "OWNERSHIP $name is canonical or retired here but remains managed by $external_lock"
+  done < <(python3 - "$LOCKFILE" "$external_lock" <<'PY'
+import json, sys
+canonical = json.load(open(sys.argv[1], encoding="utf-8"))
+external = json.load(open(sys.argv[2], encoding="utf-8"))
+owned = {record["name"] for record in canonical["skills"]}
+for name in sorted(owned.intersection(external.get("skills", {}))):
+    print(name)
+PY
+  )
+fi
 
 if [ "$ONLINE" = true ]; then
   while IFS=$'\t' read -r source_id label url source_branch pinned pin_basis; do

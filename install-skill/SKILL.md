@@ -1,11 +1,11 @@
 ---
 name: install-skill
-description: Install a freshly authored skill into ~/skills/ (the source-of-truth repo), symlink it into the active agent directories, and commit + push to the caezium/skills GitHub repo. Use after creating a SKILL.md, when finishing an anthropic-skill-creator session, or when the user says "install this skill", "wire it up", "register the skill", or "add it to my repo".
+description: Install a freshly authored skill into ~/skills/ (the source-of-truth repo), record its provenance, validate it, and symlink it into active agent directories. Use after creating a SKILL.md, when finishing an anthropic-skill-creator session, or when the user says "install this skill", "wire it up", "register the skill", or "add it to my repo".
 ---
 
 # Install Skill
 
-Wires a newly authored skill into the user's personal skills repo at `~/skills/`, links it into Claude Code, Cursor, and shared-agent discovery for Codex, and persists it to GitHub at [caezium/skills](https://github.com/caezium/skills).
+Wires a newly authored skill into the user's personal skills repo at `~/skills/`, links it into Claude Code, Cursor, and shared-agent discovery for Codex, and prepares it for review in [caezium/skills](https://github.com/caezium/skills).
 
 The user's setup uses **`~/skills/` as the single source of truth**. Agent directories (`~/.claude/skills/`, `~/.cursor/skills/`, and `~/.agents/skills/`) hold only symlinks pointing back here. Never copy a canonical skill into the agent directories — always symlink.
 
@@ -73,21 +73,30 @@ ls -la ~/.agents/skills/<skill-name>
 
 ### Step 4 — Update and validate provenance
 
-Add or update the skill's record in `skills.lock.json`. Record the source URL,
-full upstream commit and source path when known, the update policy, and every
-intentional local overlay. Compute the installed package digest with:
+Add or update the skill's record in `skills.lock.json`. For a personal skill,
+use the helper so the content digest and record shape cannot drift:
 
 ```sh
-python3 ~/skills/bin/hash-skill-tree.py ~/skills/<skill-name>
+python3 ~/skills/bin/record-skill-state.py record \
+  --name <skill-name> \
+  --kind custom \
+  --update-policy personal-repo \
+  --notes "<purpose and ownership>"
 ```
 
-Place that value in the record's `content.value`, then validate the complete
-lock before committing:
+For a vendored package, also pass `--source-id`, `--source-root`, and
+`--source-path`; use `--overlay` once per intentional local change. Pin the
+reviewed source with the helper's `pin-source` command, then validate both the
+lock and every package before committing:
 
 ```sh
 python3 ~/skills/bin/validate-skills-lock.py \
   ~/skills/skills.lock.json \
   --schema ~/skills/schema/skills-lock.schema.json
+python3 ~/skills/bin/validate-skill-tree.py --root ~/skills
+python3 ~/skills/bin/hash-skill-tree.py \
+  --verify-lock ~/skills/skills.lock.json \
+  --root ~/skills
 ```
 
 Do not change a source pin merely to silence drift: inspect the upstream diff,
@@ -108,13 +117,12 @@ Include `site/installed-skills.json` in the same commit when it changed. The
 site deployment workflow rebuilds the repository catalog and the installed
 skills map after the push.
 
-### Step 6 — Commit and push
+### Step 6 — Commit for review
 
 ```sh
 cd ~/skills
 git add <skill-name>/ skills.lock.json site/installed-skills.json
 git commit -m "Add <skill-name>: <one-line purpose>"
-git push
 ```
 
 Commit message conventions:
@@ -123,7 +131,11 @@ Commit message conventions:
 - **Remove:** `Remove <skill-name>: <why>`
 - **Slash command:** `Add /<name> command` or `Update /<name> command`
 
-Push goes to `main` directly — this is a personal repo, no PR workflow.
+Show the staged diff before committing. Push or merge only when the user
+explicitly asks for that external action. Use a short-lived branch and a PR for
+vendored upstream updates so the package diff, overlay rebase, source pin, and
+content hash can be reviewed together; a scheduled freshness issue is never
+authority to merge an update.
 
 ### Step 7 — Confirm pickup
 
@@ -160,9 +172,10 @@ Skip `~/skills/` (and use a project-local location instead) when:
 For an already-validated skill folder at `~/skills/<name>/`:
 
 ```sh
-python3 ~/skills/bin/hash-skill-tree.py ~/skills/<name>
-# Record the digest and provenance in skills.lock.json, then validate the lock.
+python3 ~/skills/bin/record-skill-state.py record --name <name> \
+  --kind custom --update-policy personal-repo --notes "<purpose>"
+python3 ~/skills/bin/validate-skill-tree.py --root ~/skills
 ~/skills/bin/update-skills-map.sh
 ~/skills/bin/sync.sh all
-cd ~/skills && git add <name>/ skills.lock.json site/installed-skills.json && git commit -m "Add <name>: <purpose>" && git push
+cd ~/skills && git add <name>/ skills.lock.json site/installed-skills.json && git commit -m "Add <name>: <purpose>"
 ```

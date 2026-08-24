@@ -1,0 +1,47 @@
+name: Skill freshness
+
+on:
+  schedule:
+    - cron: "41 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: skill-freshness
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare reviewed pins with upstream heads
+        id: freshness
+        shell: bash
+        run: |
+          set +e
+          python3 bin/check-upstream-pins.py --report "$RUNNER_TEMP/skill-freshness.md"
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -ne 0 ] && [ "$status" -ne 3 ]; then
+            exit "$status"
+          fi
+
+      - name: Open or refresh the review issue
+        if: steps.freshness.outputs.status == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          title="Review advanced skill sources"
+          body_file="$RUNNER_TEMP/skill-freshness.md"
+          issue_number="$(gh issue list --state open --search "$title in:title" --json number,title --jq '.[] | select(.title == "Review advanced skill sources") | .number' | head -n 1)"
+          if [ -n "$issue_number" ]; then
+            gh issue comment "$issue_number" --body-file "$body_file"
+          else
+            gh issue create --title "$title" --body-file "$body_file"
+          fi

@@ -1,0 +1,17 @@
+{
+  "skill_name": "why",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Why did this repository choose a 15-minute retry window? Trace the decision through the code, pull requests, issues, and any connected docs or chat, and distinguish evidence from inference.",
+      "expected_output": "Invokes why, builds a code anchor, searches every available evidence category, cites direct findings, labels inference, and names unavailable or empty sources.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Explain how requests move from the API route to the queue worker in this codebase.",
+      "expected_output": "Does not invoke why; this is a runtime-flow question for how.",
+      "files": []
+    }
+  ]
+}

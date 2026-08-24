@@ -1,0 +1,5 @@
+interface:
+  display_name: "Boundary Discipline"
+  short_description: "Validate at system boundaries"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,17 @@
+{
+  "skill_name": "how",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "How does the local session recorder turn raw events into the activity timeline? Walk me through the runtime path and the major boundaries.",
+      "expected_output": "Invokes how, maps entry points and data flow from code, separates observed mechanics from critique, and cites concrete files and symbols.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Why was the activity timeline designed around five-minute buckets instead of raw events?",
+      "expected_output": "Does not invoke how; this asks for historical rationale and should use why.",
+      "files": []
+    }
+  ]
+}

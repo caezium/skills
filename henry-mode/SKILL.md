@@ -10,6 +10,7 @@ Treat this as a router over the installed skills, not a second implementation of
 ## 1. Reconstruct before deciding
 
 - When prior work matters or the task resumes elsewhere, use `recall` to combine relevant Claude/Codex history with current repository state.
+- Use `why` when intent, history, or an old trade-off is unclear; use `how` when the missing piece is the current runtime flow or ownership map.
 - State the recovered objective, settled decisions, live constraints, and last verified checkpoint. Do not carry old conclusions forward when the code or external state disproves them.
 
 Completion criterion: the next decision can be made from current evidence without rereading raw history.
@@ -25,6 +26,7 @@ Completion criterion: consequential choices are approved, and every unresolved c
 
 - Reuse the project's verification skill when one exists. For a long-lived project without one, use `create-verification-skill`; maintain it with `maintain-verification-skill` when surfaces drift.
 - Use `writing-for-agents` for briefs, acceptance contracts, pointers, and worker output schemas.
+- Use `technical-writing` for a user-invoked documentation pass when the artifact needs an explicit tutorial, how-to, reference, or explanation shape.
 - Apply `principle-prove-it-works`, `principle-build-the-lever`, and `principle-sequence-verifiable-units`: prefer a rerunnable test, evaluator, parser, or harness over a one-off assertion.
 
 Completion criterion: every implementation unit has an observable success condition and an owner for its output.
@@ -33,7 +35,9 @@ Completion criterion: every implementation unit has an observable success condit
 
 - Single path: execute the authorized implementation directly, or use `diagnosing-bugs` for a failure → the one shared `tdd` skill where appropriate → `code-review`. Do not invoke `/implement` on the user's behalf; that workflow includes commits and remains user-invoked.
 - Boundary-crossing change: add `blast-radius` and prove the one runtime safety fact most likely to fail.
+- At external inputs, apply `principle-boundary-discipline`; for typed code, apply `principle-type-system-discipline` and `typescript-best-practices` where relevant.
 - Parallel coverage: use `swarm`. Give workers isolated directories/state, explicit resource budgets, non-overlapping briefs, and a root aggregator. Apply `principle-guard-the-context-window`; return conclusions and artifact paths instead of raw exploration.
+- For retries, restarts, lifecycle commands, or repeated automation, apply `principle-make-operations-idempotent`. For concurrent work, apply `principle-separate-before-serializing-shared-state` before reaching for locks.
 - Keep `show-me-your-work` active for autonomous or expensive work. Record decisions, evidence, attempted approaches, rejection reasons, checkpoints, and the next recovery command.
 
 Completion criterion: each unit either passes its proof or leaves a precise, non-duplicative failure record; shared mutable state never becomes an accidental coordination channel.

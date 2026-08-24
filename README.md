@@ -14,6 +14,9 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 ├── bin/sync.sh                 # offline symlink helper for local agent harnesses
 ├── bin/check-skill-updates.sh  # read-only integrity and upstream-drift audit
 ├── bin/fast-forward-skills.sh  # explicit clean-checkout update helper
+├── bin/reconcile-discovery-paths.py # archive duplicate installs and restore ownership
+├── bin/configure-machine.py    # install Claude guardrails and session-start repair
+├── bin/refresh-external-skills.sh # refresh the official Feishu package
 └── README.md
 ```
 
@@ -22,20 +25,15 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 ### Planning & Design
 
 - **consult-first** — Surface the unsettled product and design decisions and get a ruling before freezing them into a deliverable.
-- **design-an-interface** — Generate multiple radically different interface designs for a module using parallel sub-agents.
 - **grill-me** — Get relentlessly interviewed about a plan or design until every branch is resolved.
 - **grilling** — Stress-test a plan before building; triggers on any "grill" phrasing.
 - **grill-with-docs** — The same relentless interview, but it writes the ADRs and glossary as it goes.
 - **domain-modeling** — Pin down a project's ubiquitous language and record architectural decisions.
-- **write-a-prd** — Create a PRD through user interview, codebase exploration, and module design, then submit as a GitHub issue.
-- **prd-to-plan** — Turn a PRD into a multi-phase implementation plan using tracer-bullet vertical slices.
-- **prd-to-issues** — Break a PRD into independently-grabbable GitHub issues using vertical slices.
-- **request-refactor-plan** — Create a detailed refactor plan with tiny commits via user interview, then file as a GitHub issue.
-- **triage-issue** — Investigate a bug by exploring the codebase, identify root cause, and file a GitHub issue with a TDD-based fix plan.
 - **to-spec** — Turn the current conversation into a spec on the issue tracker — synthesis, no interview.
 - **to-tickets** — Break a plan or conversation into tracer-bullet tickets, each declaring its blocking edges.
 - **wayfinder** — Navigate a large, foggy effort by resolving decision tickets before pretending the work is implementable.
 - **prototype** — Build disposable runnable prototypes to answer consequential design or technical questions.
+- **loop-me** — Design recurring personal or work loops as implementation-ready workflow specs; beta and user-invoked.
 - **throughline** — Publish an implementation plan as a live HTML URL the user can read on their phone, with a Markdown/JSON handoff.
 
 ### Development
@@ -43,6 +41,7 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **tdd** — Test-driven development with red-green-refactor loop.
 - **implement** — Build a piece of work from an approved spec or set of tickets.
 - **code-review** — Review changes since a fixed point along two axes at once: repo coding standards and the originating spec.
+- **resolving-merge-conflicts** — Resolve an active merge or rebase from the intent behind both sides, then finish and verify it.
 - **diagnosing-bugs** — Reproduce, minimize, hypothesize, instrument, fix, and regression-test difficult failures.
 - **codebase-design** — Design deep modules with small interfaces, hidden complexity, and testable boundaries.
 - **clone-site** — Clone any URL into a pixel-faithful Next.js codebase: asset/CSS extraction, parallel section builders, animation porting, fidelity verification.
@@ -50,10 +49,10 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **improve-codebase-architecture** — Find deepening opportunities, informed by domain language and ADRs.
 - **scaffold-exercises** — Create exercise directory structures with sections, problems, solutions, and explainers.
 - **make-interfaces-feel-better** — Design engineering principles for polished interfaces (animations, hover states, typography, micro-interactions).
-- **ui-skills** — Opinionated constraints for building better interfaces with agents.
-- **superdesign** — Frontend UI/UX design agent for design thinking before implementation.
+- **ui-skills-root** — Route UI work into the smallest relevant upstream UI-skill context.
+- **baseline-ui**, **improve-ui**, **create-design-md**, and **fixing-*** — Focused UI implementation, design-system, accessibility, metadata, and motion-performance guidance.
+- **superdesign** — Design UI, presentations, and graphics on the Superdesign canvas, including reusable systems and model comparisons.
 - **prune** — Audit a codebase for dead code, duplication, and cruft, then safely remove what no longer earns its place.
-- **qa** — Interactive QA session: report bugs conversationally while the agent files GitHub issues with codebase context.
 - **triage** — Triage a bug or issue to root cause, then plan a TDD-based fix.
 - **blast-radius** — Prove the runtime safety fact most likely to fail when a change crosses boundaries.
 - **create-verification-skill** — Build a reusable project-local feature map and live verification recipe.
@@ -76,6 +75,7 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 - **sandbox-next** — Build new Sandbox SDK 1.0-preview apps on the matching `@next` package and image.
 - **sandbox-migrate-to-next** — Port a stable Sandbox app to the 1.0 preview with explicit cutover checks.
 - **web-perf** — Audit Core Web Vitals and diagnose browser performance with Chrome DevTools.
+- **buildspace-ci-cd**, **chat-adapter-imessage**, **imessage**, **photon-cli**, and **spectrum** — Current public Photon SDK, messaging, CLI, and release workflows shared through the canonical repo.
 
 ### Apple Platforms
 
@@ -84,9 +84,10 @@ Each skill lives in its own folder with a `SKILL.md` (frontmatter: `name`, `desc
 
 ### Frontend Best Practices
 
-- **vue-best-practices** — Vue 3 + TypeScript best practices, tooling, testing, composition API gotchas.
-- **vueuse-best-practices** — VueUse composable patterns and TypeScript integration.
-- **pinia-best-practices** — Pinia store TypeScript configuration and typing issues.
+- **vue-best-practices** — Current Vue 3 composition, reactivity, component, animation, and performance guidance.
+- **vue-pinia-best-practices** — Current Pinia store and reactivity guidance; replaces `pinia-best-practices`.
+- **vue-router-best-practices**, **vue-testing-best-practices**, **vue-debug-guides**, **vue-jsx-best-practices**, **vue-options-api-best-practices**, and **create-adaptable-composable** — Focused Vue package guidance loaded only when relevant.
+- **typescript-best-practices** — TypeScript-specific modeling, validation, exhaustiveness, testing, and telemetry rules.
 
 ### Design & Taste
 
@@ -117,8 +118,8 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 - **update-cursor-settings** — Cursor: modify Cursor settings.
 - **shell** — Cursor: shell command helper.
 - **install-skill** — Install a freshly authored skill into the repo, symlink it into the agent dirs, and commit + push.
-- **writing-great-skills** — Reference for writing and editing skills well: the vocabulary and principles that make a skill predictable.
 - **setup-matt-pocock-skills** — One-time repo setup for the engineering skills: issue tracker, triage label vocabulary, domain doc layout.
+- **wizard** — Generate an interactive shell wizard for setup, credentials, migrations, and other human-only procedures.
 - **defuddle** — Extract clean markdown from web pages, stripping clutter and navigation to save tokens.
 - **dayflow-sync** — Sync the caezium/Dayflow fork with upstream: rebase, audit, build, and stop for a pre-install checkpoint.
 - **stats-sync** — Sync the caezium/stats fork with upstream: rebase, audit, test, build, and stop before install.
@@ -132,6 +133,8 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 - **find-skills** — Discover and install agent skills.
 - **anthropic-skill-creator** — Create, modify, and benchmark portable or Claude-oriented skills with Anthropic's eval workflow; Codex keeps its own managed `skill-creator`.
 - **writing-for-agents** — Write briefs, pointer docs, acceptance contracts, and context that independent agents can execute reliably.
+- **technical-writing** — Apply a user-invoked Diátaxis and sentence-clarity pass to technical documents.
+- **teach** — Maintain a stateful teaching workspace with short lessons, references, and learning records.
 - **obsidian-vault** — Search, create, and manage notes in an Obsidian vault.
 - **obsidian-cli** — Interact with Obsidian vaults via the CLI; also plugin/theme development and debugging.
 - **obsidian-markdown** — Author Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties.
@@ -145,6 +148,8 @@ From [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) and [VoltAg
 
 - **last30days** — Deep research engine covering the last 30 days across 10+ sources.
 - **research** — Produce durable, cited technical-research artifacts from primary sources.
+- **why** — Reconstruct the evidence behind a design, threshold, regression, or trade-off across every available source category.
+- **how** — Explain a subsystem's architecture and runtime flow, with an optional independent critique pass.
 - **digest** — Aggregate top RSS feeds into a daily tech recap.
 - **nvidia-kaggle-skill** — Kaggle competition research and submission workflow: overview fetches, writeups, discussion/kernel mining, and dataset uploads.
 - **kaggle-grind** — Run a CV-first, OOF-driven, resume-safe Kaggle competition loop with honest acceptance gates.
@@ -171,6 +176,10 @@ Portable principles adapted from pstack and used by `henry-mode`:
 - **principle-guard-the-context-window** — Delegate exploration and return compact conclusions plus artifact pointers.
 - **principle-build-the-lever** — Prefer a rerunnable tool or harness over repeated one-off labor.
 - **principle-sequence-verifiable-units** — Decompose work into independently provable units that leave useful state.
+- **principle-make-operations-idempotent** — Make retries, restarts, and partial runs converge to the same result.
+- **principle-separate-before-serializing-shared-state** — Give concurrent actors separate owned state before reaching for locks.
+- **principle-boundary-discipline** — Parse and validate at external boundaries, then trust typed internal code.
+- **principle-type-system-discipline** — Make invalid states and unhandled variants fail at compile time.
 
 ### Productivity / Weekly
 
@@ -208,10 +217,11 @@ Refresh the full-machine snapshot and verify the site locally:
 bin/update-skills-map.sh
 ```
 
-Pass `--push` to commit and push only the generated snapshot. The standard
-`install-skill` workflow refreshes the snapshot before its normal skill commit.
-GitHub Actions validates site changes on pull requests, rebuilds on every push
-to `main`, and performs a scheduled rebuild each Monday.
+The standard `install-skill` workflow refreshes the snapshot before its normal
+skill commit. The script never commits or pushes; review the generated diff and
+include it with the related package change. GitHub Actions validates site
+changes on pull requests, rebuilds on every push to `main`, and performs a
+scheduled rebuild each Monday.
 
 ## Wiring this into your agents
 
@@ -274,7 +284,7 @@ Instructions for the agent. Reference supporting files like [details.md](details
 
 ## Origins
 
-This is a personal aggregator of Henry-authored skills and reviewed third-party packages. `skills.lock.json` records each skill's source, pinned upstream commit when known, content hash, state, and any local portability overlay. Third-party license texts live in `licenses/`, while packages that require their own license retain it in the skill directory. The main tracked sources include `mattpocock/skills`, pstack from `cursor/plugins`, Cloudflare's skills, `last30days`, Anthropic's skill creator, `Leonxlnx/taste-skill`, and `VoltAgent/awesome-design-md`.
+This is a personal aggregator of Henry-authored skills and reviewed third-party packages. `skills.lock.json` records each skill's source, pinned upstream commit when known, content hash, state, and any local portability overlay. Third-party license texts live in `licenses/`, while packages that require their own license retain it in the skill directory. The tracked sources include `mattpocock/skills`, pstack from `cursor/plugins`, Cloudflare's skills, `last30days`, Anthropic's skill creator, the Vue and UI skill suites, Obsidian's skills, Vercel's skill discovery package, the public Photon skills, Superdesign, NVIDIA Kaggle, SwiftUI Expert, `Leonxlnx/taste-skill`, and `VoltAgent/awesome-design-md`.
 
 Two legacy sources do not publish a standard license: `er1chu/claude-skills-weekly` (the six weekly-workflow skills) and `dmmulroy/.dotfiles` (`bro`). Their attribution and exact provenance are retained, but this remains license debt: seek explicit permission or replace them before redistributing the repository beyond personal use.
 
@@ -283,6 +293,22 @@ An upstream advance is a review signal, not an automatic overwrite: refresh the 
 ## Global config and update flow
 
 `config/CLAUDE.md` is the canonical global `~/.claude/CLAUDE.md`, and `config/AGENTS.md` is the canonical global `~/.codex/AGENTS.md`. `bin/sync.sh all` links those files plus every canonical skill into Claude, Cursor, and shared-agent discovery. The command is deterministic and offline: it never fetches, commits, merges, or pushes, and it preserves real-file collisions for explicit review.
+
+`bin/record-skill-state.py` records a reviewed source pin, content hash, overlay, or retirement without hand-editing the lock. The scheduled `skill-freshness` workflow checks public source heads weekly and opens one review issue when a pin advances; it never vendors, merges, or overwrites a skill automatically.
+
+Feishu's 28-skill catalog is an externally managed package because its well-known endpoint, not this public repository, owns those files. Refresh only that package with `bin/refresh-external-skills.sh`; the pinned `skills` CLI records an upstream digest for every installed Feishu skill. Private skill sources remain outside this public repository and update only on a machine that has the corresponding source credentials.
+
+Bootstrap a machine once with the following commands. The reconciliation command is dry-run first and moves every collision into `~/.skill-backups/` when applied; it does not delete the old copy.
+
+```sh
+python3 ~/skills/bin/reconcile-discovery-paths.py
+python3 ~/skills/bin/reconcile-discovery-paths.py --apply
+python3 ~/skills/bin/configure-machine.py --apply
+~/skills/bin/refresh-external-skills.sh
+~/skills/bin/check-skill-updates.sh --offline
+```
+
+`configure-machine.py` preserves existing Claude settings, installs the reviewed dangerous-git hook, and changes the session-start repair from Claude-only to every canonical discovery path. Run the same bootstrap after the Studio pulls this repository.
 
 On either machine, use this order:
 

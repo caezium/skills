@@ -1,173 +1,154 @@
 ---
 name: vue-best-practices
-description: Comprehensive Vue 3 development best practices, TypeScript configuration, tooling troubleshooting, testing patterns, and composition API gotchas. Covers vue-tsc, Volar, Vite configuration, Vue Router typing, component testing, reactivity patterns, and SFC features. Use when working with Vue 3 + TypeScript projects, debugging build errors, writing tests, or following best practices.
+description: MUST be used for Vue.js tasks. Strongly recommends Composition API with `<script setup>` and TypeScript as the standard approach. Covers Vue 3, SSR, Volar, vue-tsc. Load for any Vue, .vue files, Vue Router, Pinia, or Vite with Vue work. ALWAYS use Composition API unless the project explicitly requires Options API.
 license: MIT
 metadata:
-  author: hyf0
-  version: "5.0.0"
+  author: github.com/vuejs-ai
+  version: "18.0.0"
 ---
 
-# Vue Best Practices
+# Vue Best Practices Workflow
 
-Comprehensive development guidelines, TypeScript configuration, and best practices for Vue 3 applications.
+Use this skill as an instruction set. Follow the workflow in order unless the user explicitly asks for a different order.
 
-## When to Apply
+## Core Principles
+- **Keep state predictable:** one source of truth, derive everything else.
+- **Make data flow explicit:** Props down, Events up for most cases.
+- **Favor small, focused components:** easier to test, reuse, and maintain.
+- **Avoid unnecessary re-renders:** use computed properties and watchers wisely.
+- **Readability counts:** write clear, self-documenting code.
 
-- Setting up or configuring Vue 3 + TypeScript projects
-- Debugging type checking issues with vue-tsc
-- Fixing IDE/editor integration with Volar
-- Configuring Vite for Vue projects
-- Working with Vue Router typed routes
-- Writing component tests with Vitest
-- Using Composition API patterns
-- Working with defineModel, defineProps, defineExpose
-- Writing reusable composables
+## 1) Confirm architecture before coding (required)
 
----
+- Default stack: Vue 3 + Composition API + `<script setup lang="ts">`.
+- If the project explicitly uses Options API, load `vue-options-api-best-practices` skill if available.
+- If the project explicitly uses JSX, load `vue-jsx-best-practices` skill if available.
 
-## Capability Rules
+### 1.1 Must-read core references (required)
 
-Rules that enable AI to solve problems it cannot solve without the skill.
+- Before implementing any Vue task, make sure to read and apply these core references:
+  - `references/reactivity.md`
+  - `references/sfc.md`
+  - `references/component-data-flow.md`
+  - `references/composables.md`
+- Keep these references in active working context for the entire task, not only when a specific issue appears.
 
-### Type Checking
+### 1.2 Plan component boundaries before coding (required)
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [vue-tsc-strict-templates](rules/vue-tsc-strict-templates.md) | HIGH | Enable strict template checking to catch undefined components |
-| [vue-define-model-generics](rules/vue-define-model-generics.md) | HIGH | Fix vue-tsc errors when using defineModel with generic components |
+Create a brief component map before implementation for any non-trivial feature.
 
-### vueCompilerOptions Settings
+- Define each component's single responsibility in one sentence.
+- Keep entry/root and route-level view components as composition surfaces by default.
+- Move feature UI and feature logic out of entry/root/view components unless the task is intentionally a tiny single-file demo.
+- Define props/emits contracts for each child component in the map.
+- Prefer a feature folder layout (`components/<feature>/...`, `composables/use<Feature>.ts`) when adding more than one component.
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [fallthrough-attributes](rules/fallthrough-attributes.md) | HIGH | Type-check fallthrough attributes on wrapper components |
-| [strict-css-modules](rules/strict-css-modules.md) | MEDIUM | Catch typos in CSS module class names at compile time |
-| [data-attributes-config](rules/data-attributes-config.md) | MEDIUM | Allow data-* attributes with strictTemplates enabled |
+## 2) Apply essential Vue foundations (required)
 
-### Tooling & Configuration
+These are essential, must-know foundations. Apply all of them in every Vue task using the core references already loaded in section `1.1`.
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [vue-tsc-typescript-compatibility](rules/vue-tsc-typescript-compatibility.md) | HIGH | Fix vue-tsc and TypeScript version incompatibility issues |
-| [volar-3-breaking-changes](rules/volar-3-breaking-changes.md) | HIGH | Fix editor integration after Volar/vue-language-server 3.0 upgrade |
-| [module-resolution-bundler](rules/module-resolution-bundler.md) | HIGH | Fix "Cannot find module" errors after @vue/tsconfig upgrade |
-| [unplugin-auto-import-conflicts](rules/unplugin-auto-import-conflicts.md) | HIGH | Fix component types resolving as any with unplugin conflicts |
-| [codeactions-save-performance](rules/codeactions-save-performance.md) | HIGH | Fix 30-60 second save delays in large Vue projects |
+### Reactivity
 
-### Vite Configuration
+- Must-read reference from `1.1`: [reactivity](references/reactivity.md)
+- Keep source state minimal (`ref`/`reactive`), derive everything possible with `computed`.
+- Use watchers for side effects if needed.
+- Avoid recomputing expensive logic in templates.
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [path-alias-vue-sfc](rules/path-alias-vue-sfc.md) | HIGH | Fix resolve.alias failures in Vue SFC files |
-| [duplicate-plugin-detection](rules/duplicate-plugin-detection.md) | MEDIUM | Detect and fix duplicate Vue plugin registration |
+### SFC structure and template safety
 
-### Component Patterns
+- Must-read reference from `1.1`: [sfc](references/sfc.md)
+- Keep SFC sections in this order: `<script>` → `<template>` → `<style>`.
+- Keep SFC responsibilities focused; split large components.
+- Keep templates declarative; move branching/derivation to script.
+- Apply Vue template safety rules (`v-html`, list rendering, conditional rendering choices).
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [use-template-ref-generics](rules/use-template-ref-generics.md) | MEDIUM | Fix incorrect type inference for refs to generic components |
-| [define-model-update-event](rules/define-model-update-event.md) | MEDIUM | Fix runtime errors from unexpected undefined in model updates |
-| [with-defaults-union-types](rules/with-defaults-union-types.md) | MEDIUM | Fix incorrect default value behavior with union type props |
-| [verbatim-module-syntax](rules/verbatim-module-syntax.md) | MEDIUM | Fix Vite dev server errors with type-only imports |
-| [deep-watch-numeric](rules/deep-watch-numeric.md) | MEDIUM | Enable efficient array mutation watching with Vue 3.5+ numeric deep |
+### Keep components focused
 
-### Template Patterns
+Split a component when it has **more than one clear responsibility** (e.g. data orchestration + UI, or multiple independent UI sections).
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [vue-directive-comments](rules/vue-directive-comments.md) | HIGH | Control template type checking with @vue-ignore, @vue-skip directives |
+- Prefer **smaller components + composables** over one “mega component”
+- Move **UI sections** into child components (props in, events out).
+- Move **state/side effects** into composables (`useXxx()`).
 
-### SFC Patterns
+Apply objective split triggers. Split the component if **any** condition is true:
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [script-setup-jsdoc](rules/script-setup-jsdoc.md) | MEDIUM | Add JSDoc documentation to script setup components |
+- It owns both orchestration/state and substantial presentational markup for multiple sections.
+- It has 3+ distinct UI sections (for example: form, filters, list, footer/status).
+- A template block is repeated or could become reusable (item rows, cards, list entries).
 
-### Vue Router
+Entry/root and route view rule:
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [vue-router-typed-params](rules/vue-router-typed-params.md) | MEDIUM | Fix route params type narrowing with unplugin-vue-router |
+- Keep entry/root and route view components thin: app shell/layout, provider wiring, and feature composition.
+- Do not place full feature implementations in entry/root/view components when those features contain independent parts.
+- For CRUD/list features (todo, table, catalog, inbox), split at least into:
+  - feature container component
+  - input/form component
+  - list (and/or item) component
+  - footer/actions or filter/status component
+- Allow a single-file implementation only for very small throwaway demos; if chosen, explicitly justify why splitting is unnecessary.
 
-### Testing Patterns
+### Component data flow
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [teleport-testing](rules/teleport-testing.md) | HIGH | Test teleported content (modals, tooltips) |
+- Must-read reference from `1.1`: [component-data-flow](references/component-data-flow.md)
+- Use props down, events up as the primary model.
+- Use `v-model` only for true two-way component contracts.
+- Use provide/inject only for deep-tree dependencies or shared context.
+- Keep contracts explicit and typed with `defineProps`, `defineEmits`, and `InjectionKey` as needed.
 
-### TypeScript Patterns
+### Composables
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [vueuse-emits-conflict](rules/vueuse-emits-conflict.md) | MEDIUM | Fix $emit type conflicts with VueUse element composables |
+- Must-read reference from `1.1`: [composables](references/composables.md)
+- Extract logic into composables when it is reused, stateful, or side-effect heavy.
+- Keep composable APIs small, typed, and predictable.
+- Separate feature logic from presentational components.
 
----
+## 3) Consider optional features only when requirements call for them
 
-## Efficiency Rules
+### 3.1 Standard optional features
 
-Rules that help AI solve problems more effectively and consistently.
+Do not add these by default. Load the matching reference only when the requirement exists.
 
-### Vite Configuration
+- Slots: parent needs to control child content/layout -> [component-slots](references/component-slots.md)
+- Fallthrough attributes: wrapper/base components must forward attrs/events safely -> [component-fallthrough-attrs](references/component-fallthrough-attrs.md)
+- Built-in component `<KeepAlive>` for stateful view caching -> [component-keep-alive](references/component-keep-alive.md)
+- Built-in component `<Teleport>` for overlays/portals -> [component-teleport](references/component-teleport.md)
+- Built-in component `<Suspense>` for async subtree fallback boundaries -> [component-suspense](references/component-suspense.md)
+- Animation-related features: pick the simplest approach that matches the required motion behavior.
+  - Built-in component `<Transition>` for enter/leave effects -> [transition](references/component-transition.md)
+  - Built-in component `<TransitionGroup>` for animated list mutations -> [transition-group](references/component-transition-group.md)
+  - Class-based animation for non-enter/leave effects -> [animation-class-based-technique](references/animation-class-based-technique.md)
+  - State-driven animation for user-input-driven animation -> [animation-state-driven-technique](references/animation-state-driven-technique.md)
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [runtime-env-variables](rules/runtime-env-variables.md) | HIGH | Implement runtime environment variables for multi-env deployments |
-| [hmr-vue-ssr](rules/hmr-vue-ssr.md) | MEDIUM | Fix HMR issues in Vue SSR applications |
+### 3.2 Less-common optional features
 
-### Component Patterns
+Use these only when there is explicit product or technical need.
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [define-expose-types](rules/define-expose-types.md) | MEDIUM | Fix "Property does not exist" errors when accessing exposed methods |
-| [provide-inject-types](rules/provide-inject-types.md) | MEDIUM | Enable type-safe dependency injection with InjectionKey |
+- Directives: behavior is DOM-specific and not a good composable/component fit -> [directives](references/directives.md)
+- Async components: heavy/rarely-used UI should be lazy loaded -> [component-async](references/component-async.md)
+- Render functions only when templates cannot express the requirement -> [render-functions](references/render-functions.md)
+- Plugins when behavior must be installed app-wide -> [plugins](references/plugins.md)
+- State management patterns: app-wide shared state crosses feature boundaries -> [state-management](references/state-management.md)
 
-### Vue Router
+## 4) Run performance optimization after behavior is correct
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [route-meta-types](rules/route-meta-types.md) | HIGH | Extend RouteMeta interface for type-safe metadata |
-| [scroll-behavior-types](rules/scroll-behavior-types.md) | MEDIUM | Properly type scrollBehavior function |
-| [dynamic-routes-typing](rules/dynamic-routes-typing.md) | MEDIUM | Type-safe dynamic route configuration |
+Performance work is a post-functionality pass. Do not optimize before core behavior is implemented and verified.
 
-### Testing Patterns
+- Large list rendering bottlenecks -> [perf-virtualize-large-lists](references/perf-virtualize-large-lists.md)
+- Static subtrees re-rendering unnecessarily -> [perf-v-once-v-memo-directives](references/perf-v-once-v-memo-directives.md)
+- Over-abstraction in hot list paths -> [perf-avoid-component-abstraction-in-lists](references/perf-avoid-component-abstraction-in-lists.md)
+- Expensive updates triggered too often -> [updated-hook-performance](references/updated-hook-performance.md)
 
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [suspense-testing](rules/suspense-testing.md) | HIGH | Test async components with Suspense properly |
-| [pinia-store-mocking](rules/pinia-store-mocking.md) | HIGH | Mock Pinia stores correctly with Vitest |
-| [router-mocking](rules/router-mocking.md) | HIGH | Mock Vue Router with useRoute and useRouter |
-| [vue-test-utils-types](rules/vue-test-utils-types.md) | MEDIUM | Fix wrapper.vm property access types in Vue Test Utils |
+## 5) Final self-check before finishing
 
-### Composition API Patterns
-
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [reactive-destructuring](rules/reactive-destructuring.md) | HIGH | Avoid reactivity loss when destructuring reactive objects |
-| [composable-cleanup](rules/composable-cleanup.md) | HIGH | Prevent memory leaks in composables with proper cleanup |
-| [ref-unwrapping](rules/ref-unwrapping.md) | MEDIUM | Understand ref auto-unwrapping in reactive objects |
-| [watcheffect-tracking](rules/watcheffect-tracking.md) | MEDIUM | Fix conditional dependency tracking in watchEffect |
-
-### SFC Patterns
-
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [script-setup-patterns](rules/script-setup-patterns.md) | HIGH | Best practices for script setup syntax |
-| [css-v-bind](rules/css-v-bind.md) | MEDIUM | Safely use reactive values in CSS |
-
-### TypeScript Patterns
-
-| Rule | Impact | Description |
-|------|--------|-------------|
-| [component-type-helpers](rules/component-type-helpers.md) | HIGH | Extract component prop and emit types |
-| [event-handler-typing](rules/event-handler-typing.md) | MEDIUM | Type event handlers correctly |
-
----
-
-## Reference
-
-- [Vue Language Tools](https://github.com/vuejs/language-tools)
-- [Vue 3 Documentation](https://vuejs.org/)
-- [Vite Documentation](https://vite.dev/)
-- [Vue Router](https://router.vuejs.org/)
-- [Vue Test Utils](https://test-utils.vuejs.org/)
-- [VueUse](https://vueuse.org/)
+- Core behavior works and matches requirements.
+- All must-read references were read and applied.
+- Reactivity model is minimal and predictable.
+- SFC structure and template rules are followed.
+- Components are focused and well-factored, splitting when needed.
+- Entry/root and route view components remain composition surfaces unless there is an explicit small-demo exception.
+- Component split decisions are explicit and defensible (responsibility boundaries are clear).
+- Data flow contracts are explicit and typed.
+- Composables are used where reuse/complexity justifies them.
+- Moved state/side effects into composables if applicable
+- Optional features are used only when requirements demand them.
+- Performance changes were applied only after functionality was complete.
