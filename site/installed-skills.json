@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-24T10:07:47.254Z",
+  "updatedAt": "2026-08-24T11:00:34.810Z",
   "skills": [
     {
       "name": "1-1-prep",
@@ -15,6 +15,14 @@
       "description": "Build AI agents on Cloudflare Workers using the Agents SDK.",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "alphaxiv-paper-lookup",
+      "description": "Look up any arxiv paper on alphaxiv.org to get a structured AI-generated overview.",
+      "sources": [
+        "codex"
       ],
       "copies": 1
     },
@@ -43,8 +51,32 @@
       "copies": 1
     },
     {
+      "name": "art-skill-maker",
+      "description": "Create reusable Codex art and illustration skills from reference images, existing art-skill repositories, avatar IPs, style notes, or successful prompts.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "atlas",
+      "description": "macOS-only AppleScript control for the ChatGPT Atlas desktop app.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "awesome-design-md",
       "description": "A library of 74 real-brand DESIGN.md design systems (Stripe, Apple, Vercel, Linear, Notion, Spotify, Figma, and more).",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "baseline-ui",
+      "description": "Quickly deslop UI code by fixing spacing, hierarchy, typography, and small layout issues.",
       "sources": [
         "personal"
       ],
@@ -75,8 +107,24 @@
       "copies": 1
     },
     {
+      "name": "buildspace-ci-cd",
+      "description": "Configure and troubleshoot BuildSpace reusable GitHub Actions workflows and blocks for automated releases.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "burrow-system-tools",
       "description": "Diagnose and fix the user's Mac with Burrow's local MCP tools (burrow_doctor, burrow_snapshot, burrow_top_processes, burrow_process_usage, burrow_ports, burrow_analyze, burrow_disk_forecast, burrow_dupes, burrow_anomalies, burrow_agent_audit, burrow_clean, …).",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "chat-adapter-imessage",
+      "description": "Connect the Vercel AI SDK to iMessage.",
       "sources": [
         "personal"
       ],
@@ -87,6 +135,14 @@
       "description": "Query the user's own WeChat (微信) history through the local chatlog HTTP API (http://127.0.0.1:5030).",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "chiken-emote-illustrations",
+      "description": "Generate soft hand-drawn Chiken avatar emotes, reaction stickers, article illustrations, concept visuals, shot lists, prompts, and edits that should use the supplied round cream chicken character instead of a generic mascot.",
+      "sources": [
+        "codex"
       ],
       "copies": 1
     },
@@ -139,10 +195,58 @@
       "copies": 1
     },
     {
+      "name": "computer-use",
+      "description": "Control local Mac apps through Computer Use for tasks that require reading or operating app UI.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
       "name": "consult-first",
       "description": "Consult the user before making consequential product or design decisions, drafting a substantive plan or document, or implementing a nontrivial change whose direction is not settled.",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "control-chrome",
+      "description": "Control the user's Chrome browser for tasks that depend on existing Chrome state: tabs, logged-in sessions, or extensions.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "control-in-app-browser",
+      "description": "Control the in-app Browser for opening, navigating, inspecting visible or interactive page state, clicking, typing, screenshots, and local web testing.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "create-adaptable-composable",
+      "description": "Create a library-grade Vue composable that accepts maybe-reactive inputs (MaybeRef / MaybeRefOrGetter) so callers can pass a plain value, ref, or getter.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "create-design-md",
+      "description": "Create or update a DESIGN.md from an existing product repository or public website.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "create-pr",
+      "description": "Create or update a pull request for the current branch.",
+      "sources": [
+        "shared"
       ],
       "copies": 1
     },
@@ -219,14 +323,6 @@
       "copies": 1
     },
     {
-      "name": "design-an-interface",
-      "description": "Generate multiple radically different interface designs for a module using parallel sub-agents.",
-      "sources": [
-        "personal"
-      ],
-      "copies": 1
-    },
-    {
       "name": "design-taste-frontend",
       "description": "Anti-slop frontend skill for landing pages, portfolios, and redesigns.",
       "sources": [
@@ -259,6 +355,14 @@
       "copies": 1
     },
     {
+      "name": "documents",
+      "description": "Create, edit, redline, and comment on `.docx`, Word, and Google Docs-targeted document artifacts inside the container, with a strict render-and-verify workflow.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
       "name": "domain-modeling",
       "description": "Build and sharpen a project's domain model.",
       "sources": [
@@ -275,6 +379,22 @@
       "copies": 1
     },
     {
+      "name": "excel-live-control",
+      "description": "Control an open or active Microsoft Excel workbook through the ChatGPT add-in or connected session.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "figma",
+      "description": "Use the Figma MCP server to fetch design context, screenshots, variables, and assets from Figma, and to translate Figma nodes into production code.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "find-docs",
       "description": "Retrieves authoritative, up-to-date technical documentation, API references, configuration details, and code examples for any developer technology.",
       "sources": [
@@ -285,6 +405,30 @@
     {
       "name": "find-skills",
       "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "fixing-accessibility",
+      "description": "Audit and fix HTML accessibility issues including ARIA labels, keyboard navigation, focus management, color contrast, and form errors.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "fixing-metadata",
+      "description": "Audit and fix HTML metadata including page titles, meta descriptions, canonical URLs, Open Graph tags, Twitter cards, favicons, JSON-LD structured data, and robots directives.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "fixing-motion-performance",
+      "description": "Audit and fix animation performance issues including layout thrashing, compositor properties, scroll-linked motion, and blur effects.",
       "sources": [
         "personal"
       ],
@@ -355,6 +499,14 @@
       "copies": 1
     },
     {
+      "name": "henry-avatar-illustrations",
+      "description": "Generate white-background article illustrations, concept diagrams, and visual metaphors featuring Henry's soft pixel-art chicken avatar.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "henry-mode",
       "description": "Orchestrate Henry's long-running engineering and research work across recall, consultation, specifications, verification, worker fleets, evidence trails, handoffs, and reflection.",
       "sources": [
@@ -365,6 +517,14 @@
     {
       "name": "high-end-visual-design",
       "description": "Teaches the AI to design like a high-end agency.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "how",
+      "description": "Use for \"how does X work\", code walkthroughs before changing something, and placement / ownership / layering questions (\"where should this live\", \"which package owns this\", \"is this the right layer\").",
       "sources": [
         "personal"
       ],
@@ -388,11 +548,11 @@
     },
     {
       "name": "imagegen",
-      "description": "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts.",
+      "description": "Use when the user asks to generate or edit images via the OpenAI Image API (for example: generate image, edit/inpaint/mask, background removal or replacement, transparent background, product shots, concept art, covers, or batch variants); run the bundled CLI...",
       "sources": [
         "codex"
       ],
-      "copies": 1
+      "copies": 2
     },
     {
       "name": "imagegen-frontend-mobile",
@@ -405,6 +565,14 @@
     {
       "name": "imagegen-frontend-web",
       "description": "Elite frontend image-direction skill for generating premium, conversion-aware website design references.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "imessage",
+      "description": "Build, debug, or migrate iMessage integrations with Photon.",
       "sources": [
         "personal"
       ],
@@ -427,6 +595,14 @@
       "copies": 1
     },
     {
+      "name": "improve-ui",
+      "description": "Audit an existing product surface against its own design evidence, identify verified UI problems, and write self-contained implementation plans for another agent.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "industrial-brutalist-ui",
       "description": "Raw mechanical interfaces fusing Swiss typographic print with military terminal aesthetics.",
       "sources": [
@@ -436,7 +612,7 @@
     },
     {
       "name": "install-skill",
-      "description": "Install a freshly authored skill into ~/skills/ (the source-of-truth repo), symlink it into the active agent directories, and commit + push to the caezium/skills GitHub repo.",
+      "description": "Install a freshly authored skill into ~/skills/ (the source-of-truth repo), record its provenance, validate it, and symlink it into active agent directories.",
       "sources": [
         "personal"
       ],
@@ -459,6 +635,14 @@
       "copies": 1
     },
     {
+      "name": "jupyter-notebook",
+      "description": "Use when the user asks to create, scaffold, or edit Jupyter notebooks (`.ipynb`) for experiments, explorations, or tutorials; prefer the bundled templates and run the helper script `new_notebook.py` to generate a clean starting notebook.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "kaggle-grind",
       "description": "Autonomous, disciplined Kaggle competition workflow — the loop that took Playground S6E6 to 19th/2742 (top 0.7%).",
       "sources": [
@@ -467,10 +651,290 @@
       "copies": 1
     },
     {
+      "name": "lark-approval",
+      "description": "飞书审批：查询和处理审批待办/已办/实例，搜索可发起审批定义、查看定义详情并发起原生审批实例。当用户要处理审批任务、查看审批实例、搜索或发起审批时使用。审批待办不是飞书任务；非审批类待办走 lark-task。不负责创建审批定义；三方审批定义不走原生提单。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-apps",
+      "description": "妙搭（Spark/Miaoda）应用开发与托管：应用创建、本地全栈开发、云端生成迭代、创意设计（UI mockup / 可交互原型 / 线框图 / 落地页 / 仪表盘 / 幻灯片 deck / 视觉探索）、AI相关能力和飞书平台能力或者其他外部能力集成、日志/Trace/监控指标/PV/UV 查询、环境变量管理、应用协作者与协作权限设置、应用角色与成员管理、自动化触发器（定时/记录变更/Webhook/飞书审批）。当用户要开发/新建一个系统·工具·平台·应用，或要本地开发 / 云端开发 / 修改 / 部署 / 发布 / 上线 /...",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-attendance",
+      "description": "飞书考勤打卡：查询自己的考勤打卡记录",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-base",
+      "description": "飞书多维表格（Base）操作：建表、字段、记录、视图、统计、公式/lookup、表单、仪表盘、应用模式（BaseApp/AppMode 页面与组件）、Workspace 目录、workflow、角色权限、模板中心（多维表格模板分类/列表/搜索）；遇到 Base/多维表格/bitable、BaseApp/AppMode、/base/ 或 /app/ 链接时使用。BaseApp 不走 lark-apps；文件导入/导出转 lark-drive，认证/授权转 lark-shared。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-calendar",
+      "description": "飞书日历：管理日历日程和会议室。查看/搜索日程、创建/更新日程、管理参会人、查询忙闲和推荐时段、预定会议室。当用户需要查看日程安排、创建/修改会议、查询/预定会议室时使用。不负责：查询过去的视频会议记录（走 lark-meeting）、待办任务（走 lark-task）。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-contact",
+      "description": "飞书 / Lark 通讯录:按姓名 / 邮箱解析成 open_id,或按 open_id 反查姓名 / 部门 / 邮箱 / 联系方式 / 个人状态 / 签名,以及按关键词搜索当前用户可见的机器人 / 智能体(agent)。当用户提到一个名字要下一步发消息 / 排日程,或拿到 open_id 想查具体信息时使用。不负责部门树遍历、按部门列员工、组织架构图,这类需求走原生 OpenAPI。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-doc",
+      "description": "飞书云文档（Docx / Wiki）内容操作：读取、创建、编辑文档，插入或下载图片附件，以及操作思维笔记。用户提供文档 URL/token（包括 doubao.com 的 /docx/、/wiki/）时使用；按 URL 路径/token 而非域名路由。文档内嵌资源按读取参考中的统一规则分流。独立评论操作走 lark-drive；随正文读取评论使用 docs +fetch。表格或 Base 内部数据操作不在本 skill。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-drive",
+      "description": "飞书云空间（云盘/云存储）：管理 Drive 文件和文件夹，包含上传/下载、创建文件夹、复制/移动/删除、查看元数据、查询权限设置、评论/权限/订阅、标题、版本、飞书文档密级标签（secure labels）和本地文件导入。用户需要整理云盘目录、处理云空间资源 URL/token、判断链接类型/真实 token/标题，或导入 Word/Markdown/Excel/CSV/PPTX/.base 为 docx/sheet/bitable/slides 时使用；doubao.com 云空间 URL/token 也按资源路径和 token 路由，不回退...",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-event",
+      "description": "Lark/Feishu real-time event listening / subscribing / consuming: stream events as NDJSON via `lark-cli event consume <EventKey>` (covers IM messages/reactions/chat changes, Approval status changes, Task updates, VC meeting started/joined/ended, Minutes generated, Whiteboard...",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-im",
+      "description": "飞书即时通讯：收发消息和管理群聊。发送和回复消息、搜索聊天记录、管理群聊成员、上传下载图片和文件、管理表情回复、发送应用内/短信/电话加急、发送和处理交互卡片（Interactive Card）、监听卡片按钮回调（card.action.trigger）。当用户需要发消息、查看或搜索聊天记录、下载聊天中的文件、查看群成员、搜索群、创建群聊或话题群、管理标记数据、管理 Feed 置顶（添加/移除/查询置顶会话）、管理标签数据、处理卡片回调时使用。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-mail",
+      "description": "飞书邮箱：Use when user mentions 起草邮件、写邮件、草稿、发送/回复/转发邮件、查阅邮件、看邮件、搜索邮件、邮件文件夹、邮件标签、邮件联系人、监听新邮件、邮件收信规则等；use for mail/email intent only.",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-markdown",
+      "description": "飞书 Markdown：查看、创建、上传、编辑和比较 Markdown 文件。当用户需要创建或编辑 Markdown 文件、读取、修改、局部 patch 或比较差异时使用。不负责将 Markdown 导入为飞书在线文档，也不负责文件搜索、权限、评论、移动、删除等云空间管理操作。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-meeting",
+      "description": "飞书视频会议：查询会议记录与会议产物(纪要/逐字稿/妙记)、妙记搜索/上传/下载/编辑、机器人参与会议；查询进行中的会议、实时会议内容(发言/聊天/共享文档)问答(会上/会里)、发送会中聊天/表情；基于 meeting_id、meeting_no、event_id、note_id、minute_token、vc-node-id 或妙记 URL 查询相关信息。预约会议、忙闲和会议室管理走 lark-calendar。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-minutes",
+      "description": "仅当用户或上游配置显式指定 lark-minutes 时使用，相关请求统一交由 lark-meeting 技能处理。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-note",
+      "description": "仅当用户或上游配置显式指定 lark-note 时使用，相关请求统一交由 lark-meeting 技能处理。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-okr",
+      "description": "飞书 OKR：管理目标与关键结果。查看和编辑 OKR 周期、目标、关键结果、对齐关系、量化指标和进展记录。当用户需要查看或创建 OKR、管理目标和关键结果、查看对齐关系时使用。不负责：待办任务管理（lark-task）、日程/会议安排（lark-calendar）、绩效评估",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-openapi-explorer",
+      "description": "飞书/Lark 原生 OpenAPI 探索：从官方文档库中挖掘未经 CLI 封装的原生 OpenAPI 接口。当用户的需求无法被现有 lark-* skill 或 lark-cli 已注册命令满足，需要查找并调用原生飞书 OpenAPI 时使用。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-shared",
+      "description": "Use for lark-cli setup/auth tasks: auth login/status/logout, user vs bot identity, business-domain permissions (--domain, including all/docs/drive), missing scopes, revoking authorization, or handling _notice JSON.",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-sheets",
+      "description": "飞书电子表格：创建和操作电子表格。支持创建表格、管理工作表与行列结构（增删/合并/调整尺寸/隐藏/冻结）、读写单元格（值/公式/样式/批注/单元格图片）、查找替换、多操作批量更新，以及图表、透视表、条件格式、筛选器、迷你图、浮动图片等对象的创建与维护。当用户需要创建电子表格、管理工作表、批量读写或编辑数据、统计汇总与可视化、表格美化、公式计算（含 Excel 公式迁移）、金融/财务建模（DCF、三张表、预算、Sensitivity 等）等任务时使用。若用户是想按名称或关键词搜索云空间（云盘/云存储）里的表格文件，请改用 lark-drive 的...",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-skill-maker",
+      "description": "创建 lark-cli 的自定义 Skill。当用户需要把飞书 API 操作封装成可复用的 Skill（包装原子 API 或编排多步流程）时使用。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-slides",
+      "description": "飞书幻灯片：创建和编辑幻灯片。创建演示文稿、读取幻灯片内容、管理幻灯片页面（创建、删除、读取、局部替换）。当用户需要创建或编辑幻灯片、读取或修改单个页面时使用。当用户给出 doubao.com 的 /slides/ URL/token 时，也应直接使用本 skill，不要因为域名不是飞书而回退到 WebFetch；路由依据是 URL 路径模式和 token，而不是域名。不负责：云文档内容编辑（走 lark-doc）、云文档里的独立画板对象（走 lark-whiteboard）、上传或下载普通文件（走 lark-drive）。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-task",
+      "description": "飞书任务：管理任务、清单和任务智能体。创建待办任务、查看和更新任务状态、拆分子任务、组织任务清单、分配协作成员、上传任务附件、注册或注销任务智能体、更新任务智能体的主页数据、写入智能体任务记录。当用户需要创建待办事项、查看任务列表、跟踪任务进度、管理项目清单或给他人分配任务、为任务上传附件文件、注册注销任务智能体、更新智能体主页数据、写入任务记录时使用。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-vc",
+      "description": "仅当用户或上游配置显式指定 lark-vc 时使用，相关请求统一交由 lark-meeting 技能处理。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-vc-agent",
+      "description": "仅当用户或上游配置显式指定 lark-vc-agent 时使用，相关请求统一交由 lark-meeting 技能处理。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-whiteboard",
+      "description": "飞书画板：查询和编辑飞书云文档中的画板。支持导出画板为预览图片、导出原始节点结构、使用多种格式更新画板内容。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-wiki",
+      "description": "飞书知识库：管理知识空间、空间成员和文档节点。创建和查询知识空间、查看和管理空间成员、管理节点层级结构、在知识库中组织文档和快捷方式。当用户需要在知识库中查找或创建文档、浏览知识空间结构、查看或管理空间成员、移动或复制节点时使用。当用户给出 doubao.com 的 /wiki/ URL/token 时，也应直接使用本 skill，不要因为域名不是飞书而回退到 WebFetch；路由依据是 URL 路径模式和 token，而不是域名。不负责：上传文件到知识库节点下（走 lark-drive）、编辑文档/表格/Base 内容（走 lark-doc...",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-workflow-meeting-summary",
+      "description": "会议纪要整理工作流：汇总指定时间范围内的会议纪要并生成结构化报告。当用户需要整理会议纪要、生成会议周报、回顾一段时间内的会议内容时使用。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "lark-workflow-standup-report",
+      "description": "日程待办摘要：编排 calendar +agenda 和 task +get-my-tasks，生成指定日期的日程与未完成任务摘要。适用于了解今天/明天/本周的安排。",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
       "name": "last30days",
       "description": "Research what people actually say about any topic in the last 30 days.",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "linear",
+      "description": "Manage issues, projects & team workflows in Linear.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "llm-council",
+      "description": "Run a high-stakes question, idea, or decision through a council of 5 AI advisors who analyze independently, peer-review anonymously, and synthesize a final verdict.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "loop-me",
+      "description": "Grill me about specs for the workflows I want to build, within this workspace.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "macrocosm-ci",
+      "description": "Add CI/CD GitHub Actions workflows to a macrocosm Swift package project.",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "macrocosm-dev",
+      "description": "Initialize a new macrocosm project for Photon's Mac Mini farm.",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "macrocosm-handbook",
+      "description": "Reference handbook for Photon's Mac Mini farm (macrocosm).",
+      "sources": [
+        "shared"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "macrocosm-launch",
+      "description": "Add a launchd plist, postinstall script, and payload directory to a macrocosm Swift package project.",
+      "sources": [
+        "shared"
       ],
       "copies": 1
     },
@@ -579,8 +1043,17 @@
       "copies": 1
     },
     {
-      "name": "pinia-best-practices",
-      "description": "Pinia store TypeScript configuration and typing issues.",
+      "name": "pdf",
+      "description": "Use when tasks involve reading, creating, or reviewing PDF files where rendering and layout matter; prefer visual checks by rendering pages (Poppler) and use Python tools such as `reportlab`, `pdfplumber`, and `pypdf` for generation and extraction.",
+      "sources": [
+        "codex",
+        "plugin"
+      ],
+      "copies": 2
+    },
+    {
+      "name": "photon-cli",
+      "description": "Use when working with the Photon CLI — the `photon` binary (alias `pho`).",
       "sources": [
         "personal"
       ],
@@ -595,6 +1068,14 @@
       "copies": 1
     },
     {
+      "name": "playwright",
+      "description": "Use when the task requires automating a real browser from the terminal (navigation, form filling, snapshots, screenshots, data extraction, UI-flow debugging) via `playwright-cli` or the bundled wrapper script.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "plugin-creator",
       "description": "Create and scaffold plugin directories for Codex with a required `.codex-plugin/plugin.json`, optional plugin folders/files, valid manifest defaults, and personal-marketplace entries by default.",
       "sources": [
@@ -603,16 +1084,16 @@
       "copies": 1
     },
     {
-      "name": "prd-to-issues",
-      "description": "Break a PRD into independently-grabbable GitHub issues using tracer-bullet vertical slices.",
+      "name": "Presentations",
+      "description": "Create or edit PowerPoint or Google Slides decks",
       "sources": [
-        "personal"
+        "plugin"
       ],
       "copies": 1
     },
     {
-      "name": "prd-to-plan",
-      "description": "Turn a PRD into a multi-phase implementation plan using tracer-bullet vertical slices, saved as a local Markdown file in ./plans/.",
+      "name": "principle-boundary-discipline",
+      "description": "Apply when wiring validation, error handling, or framework adapters.",
       "sources": [
         "personal"
       ],
@@ -635,6 +1116,14 @@
       "copies": 1
     },
     {
+      "name": "principle-make-operations-idempotent",
+      "description": "Apply when designing commands, lifecycle steps, or processing loops that run amid crashes, restarts, and retries.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "principle-prove-it-works",
       "description": "Prove completed work against the real artifact before declaring success.",
       "sources": [
@@ -643,8 +1132,24 @@
       "copies": 1
     },
     {
+      "name": "principle-separate-before-serializing-shared-state",
+      "description": "Apply when concurrent actors might write to the same file, branch, key, or state object.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "principle-sequence-verifiable-units",
       "description": "Break multi-step work into small units that each end in a checkable green state.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "description": "Apply when designing types, reviewing a function signature, or writing code in any statically-typed language.",
       "sources": [
         "personal"
       ],
@@ -661,14 +1166,6 @@
     {
       "name": "prune",
       "description": "Audit a codebase for dead code, duplication, unused dependencies, and cruft, then safely remove what no longer earns its place.",
-      "sources": [
-        "personal"
-      ],
-      "copies": 1
-    },
-    {
-      "name": "qa",
-      "description": "Interactive QA session where user reports bugs or issues conversationally, and the agent files GitHub issues.",
       "sources": [
         "personal"
       ],
@@ -707,16 +1204,16 @@
       "copies": 1
     },
     {
-      "name": "request-refactor-plan",
-      "description": "Create a detailed refactor plan with tiny commits via user interview, then file it as a GitHub issue.",
+      "name": "research",
+      "description": "Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo.",
       "sources": [
         "personal"
       ],
       "copies": 1
     },
     {
-      "name": "research",
-      "description": "Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo.",
+      "name": "resolving-merge-conflicts",
+      "description": "Use when you need to resolve an in-progress git merge/rebase conflict.",
       "sources": [
         "personal"
       ],
@@ -763,6 +1260,14 @@
       "copies": 1
     },
     {
+      "name": "screenshot",
+      "description": "Use when the user explicitly asks for a desktop or system screenshot (full screen, specific app or window, or a pixel region), or when tool-specific capture capabilities are unavailable and an OS-level capture is needed.",
+      "sources": [
+        "codex"
+      ],
+      "copies": 1
+    },
+    {
       "name": "setup-matt-pocock-skills",
       "description": "Configure this repo for the engineering skills: set up its issue tracker, triage label vocabulary, and domain doc layout.",
       "sources": [
@@ -787,8 +1292,24 @@
       "copies": 1
     },
     {
+      "name": "sites-building",
+      "description": "Use Sites to build websites, including landing pages, portfolios, dashboards, portals, trackers, hubs, and internal tools.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "sites-hosting",
+      "description": "Host websites with Sites.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
       "name": "skill-creator",
-      "description": "Create or update a Codex skill with appropriately scoped instructions and any needed supporting resources.",
+      "description": "Guide for creating effective skills.",
       "sources": [
         "codex"
       ],
@@ -799,6 +1320,22 @@
       "description": "Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path.",
       "sources": [
         "codex"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "spectrum",
+      "description": "Build or review messaging agents with Photon Spectrum (`spectrum-ts`).",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "Spreadsheets",
+      "description": "Create, edit, analyze, and verify standalone spreadsheet files or Google Sheets-ready workbooks, including .xlsx, .xls, .csv, and .tsv.",
+      "sources": [
+        "plugin"
       ],
       "copies": 1
     },
@@ -820,7 +1357,7 @@
     },
     {
       "name": "superdesign",
-      "description": "Superdesign is a design agent, where it specialised in frontend UI/UX design; Use this skill before you implement any UI that require some design thinking.",
+      "description": "Design or redesign frontend UI, presentations, and graphics on the Superdesign canvas with a choice of leading AI models.",
       "sources": [
         "personal"
       ],
@@ -847,6 +1384,30 @@
       "description": "Test-driven development.",
       "sources": [
         "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "teach",
+      "description": "Teach the user a new skill or concept, within this workspace.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "technical-writing",
+      "description": "Layered technical-writing standard: Diátaxis structure, Google developer style sentences, STE instruction rules, Global English syntax.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "template-creator",
+      "description": "Create or update a reusable personal Codex artifact-template skill.",
+      "sources": [
+        "plugin"
       ],
       "copies": 1
     },
@@ -891,16 +1452,16 @@
       "copies": 1
     },
     {
-      "name": "triage-issue",
-      "description": "Triage a bug or issue by exploring the codebase to find root cause, then create a GitHub issue with a TDD-based fix plan.",
+      "name": "typescript-best-practices",
+      "description": "TypeScript best practices.",
       "sources": [
         "personal"
       ],
       "copies": 1
     },
     {
-      "name": "ui-skills",
-      "description": "Opinionated constraints for building better interfaces with agents.",
+      "name": "ui-skills-root",
+      "description": "Use before UI-related work to select the smallest useful UI Skills context through the ui-skills CLI.",
       "sources": [
         "personal"
       ],
@@ -931,16 +1492,64 @@
       "copies": 1
     },
     {
+      "name": "visualize",
+      "description": "Create visualizations and interactive tools in conversation.",
+      "sources": [
+        "plugin"
+      ],
+      "copies": 1
+    },
+    {
       "name": "vue-best-practices",
-      "description": "Comprehensive Vue 3 development best practices, TypeScript configuration, tooling troubleshooting, testing patterns, and composition API gotchas.",
+      "description": "MUST be used for Vue.js tasks.",
       "sources": [
         "personal"
       ],
       "copies": 1
     },
     {
-      "name": "vueuse-best-practices",
-      "description": "VueUse composable patterns and TypeScript integration.",
+      "name": "vue-debug-guides",
+      "description": "Vue 3 debugging and error handling for runtime errors, warnings, async failures, and SSR/hydration issues.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "vue-jsx-best-practices",
+      "description": "JSX syntax in Vue (e.g., class vs className, JSX plugin config).",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "vue-options-api-best-practices",
+      "description": "Vue 3 Options API style (data(), methods, this context).",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "vue-pinia-best-practices",
+      "description": "Pinia stores, state management patterns, store setup, and reactivity with stores.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "vue-router-best-practices",
+      "description": "Vue Router 4 patterns, navigation guards, route params, and route-component lifecycle interactions.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "vue-testing-best-practices",
+      "description": "Use for Vue.js testing.",
       "sources": [
         "personal"
       ],
@@ -971,6 +1580,22 @@
       "copies": 1
     },
     {
+      "name": "why",
+      "description": "Use for 'why does X work this way', 'why we picked Y', design rationale, regressions, postmortems, or data-backed thresholds.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
+      "name": "wizard",
+      "description": "Generate an interactive bash wizard that walks a human through steps only they can perform.",
+      "sources": [
+        "personal"
+      ],
+      "copies": 1
+    },
+    {
       "name": "workers-best-practices",
       "description": "Reviews and authors Cloudflare Workers code against production best practices.",
       "sources": [
@@ -987,14 +1612,6 @@
       "copies": 1
     },
     {
-      "name": "write-a-prd",
-      "description": "Create a PRD through user interview, codebase exploration, and module design, then submit as a GitHub issue.",
-      "sources": [
-        "personal"
-      ],
-      "copies": 1
-    },
-    {
       "name": "writing-for-agents",
       "description": "Writing documents for agents.",
       "sources": [
@@ -1003,10 +1620,10 @@
       "copies": 1
     },
     {
-      "name": "writing-great-skills",
-      "description": "Reference for writing and editing skills well — the vocabulary and principles that make a skill predictable.",
+      "name": "yeet",
+      "description": "Use only when the user explicitly asks to stage, commit, push, and open a GitHub pull request in one flow using the GitHub CLI (`gh`).",
       "sources": [
-        "personal"
+        "codex"
       ],
       "copies": 1
     }
