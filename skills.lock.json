@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T00:00:00Z",
+  "generatedAt": "2026-08-24T00:00:00Z",
   "canonicalRepo": {
     "repo": "caezium/skills",
     "url": "https://github.com/caezium/skills.git",
     "branch": "main",
-    "auditedCommit": "018d2b15ae2b6b22f071ca0ee5fdc03065961e62"
+    "auditedCommit": "1238d3b03b1ec11e039cdbde91f5aff0ad84b631"
   },
   "sources": {
     "anthropic-official": {
@@ -74,9 +74,9 @@
       "repo": "mvanhorn/last30days-skill",
       "url": "https://github.com/mvanhorn/last30days-skill.git",
       "branch": "main",
-      "pinnedCommit": "86a882510381532cf0d7aaacd96f87e1b5f3bf80",
+      "pinnedCommit": "d05389d39b2ce09a13f71b01e68562f077c766df",
       "pinBasis": "audited-remote-snapshot",
-      "lastCheckedAt": "2026-08-20T00:00:00Z"
+      "lastCheckedAt": "2026-08-24T00:00:00Z"
     },
     "matt": {
       "kind": "git",
@@ -84,9 +84,9 @@
       "repo": "mattpocock/skills",
       "url": "https://github.com/mattpocock/skills.git",
       "branch": "main",
-      "pinnedCommit": "0ab1b63a410a03d3627979a109c8695de27af954",
+      "pinnedCommit": "5b15a47f2d7150f545fbcacbfe381787fc0230dc",
       "pinBasis": "audited-remote-snapshot",
-      "lastCheckedAt": "2026-08-20T00:00:00Z"
+      "lastCheckedAt": "2026-08-24T00:00:00Z"
     },
     "personal": {
       "kind": "git",
@@ -94,9 +94,9 @@
       "repo": "caezium/skills",
       "url": "https://github.com/caezium/skills.git",
       "branch": "main",
-      "pinnedCommit": "018d2b15ae2b6b22f071ca0ee5fdc03065961e62",
+      "pinnedCommit": "1238d3b03b1ec11e039cdbde91f5aff0ad84b631",
       "pinBasis": "canonical-repo",
-      "lastCheckedAt": "2026-08-20T00:00:00Z"
+      "lastCheckedAt": "2026-08-24T00:00:00Z"
     },
     "pstack": {
       "kind": "git",
@@ -104,9 +104,9 @@
       "repo": "cursor/plugins",
       "url": "https://github.com/cursor/plugins.git",
       "branch": "main",
-      "pinnedCommit": "51a96e0dd838404da19ba83dc70aa21eef71f868",
+      "pinnedCommit": "46125561306434d8a1d7745d540d8932ab0cd2a2",
       "pinBasis": "audited-remote-snapshot",
-      "lastCheckedAt": "2026-08-20T00:00:00Z"
+      "lastCheckedAt": "2026-08-24T00:00:00Z"
     },
     "taste": {
       "kind": "git",
@@ -114,9 +114,9 @@
       "repo": "Leonxlnx/taste-skill",
       "url": "https://github.com/Leonxlnx/taste-skill.git",
       "branch": "main",
-      "pinnedCommit": "dfb6f9f9e93a39f673b1827c0889cc28326d1800",
+      "pinnedCommit": "72e299530e2eb31ed8da06181bc19f6c18a00821",
       "pinBasis": "audited-remote-snapshot",
-      "lastCheckedAt": "2026-08-20T00:00:00Z"
+      "lastCheckedAt": "2026-08-24T00:00:00Z"
     },
     "tech-digest": {
       "kind": "git",
@@ -201,7 +201,7 @@
     {"name":"interrogate","state":"active","kind":"vendored-overlay","sourceId":"pstack","sourcePath":"pstack/skills/interrogate","sourceTree":"07d83143e202963c4d824818709ad04e23091f18","content":{"kind":"sha256","value":"537ded8d3d474efb4d4fcecc3b130a7479a8db81e4bb66103f6ceaec05b2d838","basis":"integration-target-content"},"localOverlays":["portable cross-harness adaptation","vendored MIT license file","invocation metadata and description adjusted so henry-mode can route"],"updatePolicy":"reviewed-overlay-rebase","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Portable pstack port from cursor/plugins@51a96e0dd838."},
     {"name":"json-canvas","state":"active","kind":"source-unknown","sourceId":null,"sourcePath":null,"sourceTree":null,"content":{"kind":"sha256","value":"b5b93848881b86b74e645dd51250994d58e78eb480cbccc6a72ef053996fd24d","basis":"integration-target-content"},"localOverlays":[],"updatePolicy":"identify-source-before-update","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Imported without a retained source URL or commit"},
     {"name":"kaggle-grind","state":"active","kind":"custom","sourceId":"personal","sourcePath":"kaggle-grind","sourceTree":null,"content":{"kind":"sha256","value":"7ed03c99f781af677edf72f99e80a6a4a5dde3f911902617b3ac80a68f19c9b2","basis":"integration-target-content"},"localOverlays":[],"updatePolicy":"personal-repo","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Promoted into the canonical cross-harness repository during the 2026-08-20 remediation."},
-    {"name":"last30days","state":"active","kind":"vendored-overlay","sourceId":"last30days","sourcePath":"skills/last30days","sourceTree":"b13edbca71cecea9b33ce932d420161ea6ce4ea3","content":{"kind":"sha256","value":"f7dcf62b064e179a65406cb2f000c0bb83b9b966d07d6bb12d3c20ff67086208","basis":"integration-target-content"},"localOverlays":["repository-root LICENSE included in the vendored skill"],"updatePolicy":"reviewed-overlay-rebase","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Updated to the audited v3.21.1 source snapshot with a LICENSE overlay."},
+    {"name":"last30days","state":"active","kind":"vendored-overlay","sourceId":"last30days","sourcePath":"skills/last30days","sourceTree":"cf1f03de897bd39eed176e0d6c80b9c90d623b0f","content":{"kind":"sha256","value":"ee3507952a6ecc0a26456ed36ca7ccabdbb617da665b2858c2db6e42cb3c7f9f","basis":"integration-target-content"},"localOverlays":["repository-root LICENSE included in the vendored skill"],"updatePolicy":"reviewed-overlay-rebase","lastCheckedAt":"2026-08-24T00:00:00Z","notes":"Updated to d05389d with opt-in Telegram public-channel support; retained the repository-root LICENSE overlay."},
     {"name":"maintain-verification-skill","state":"active","kind":"vendored-overlay","sourceId":"pstack","sourcePath":"pstack/skills/maintain-verification-skill","sourceTree":"b6ce4dcdc378492f9acd55a4e56ae111204b4f11","content":{"kind":"sha256","value":"7c2590ad744f772dc5f2b580ca750b34fdf7d7006329ddb0ce58f8c1d40a11c0","basis":"integration-target-content"},"localOverlays":["portable cross-harness adaptation","vendored MIT license file"],"updatePolicy":"reviewed-overlay-rebase","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Portable pstack port from cursor/plugins@51a96e0dd838."},
     {"name":"make-interfaces-feel-better","state":"active","kind":"source-unknown","sourceId":null,"sourcePath":null,"sourceTree":null,"content":{"kind":"sha256","value":"336561cac21e66adc69548929b71d31bce018ea82892da0d7719e96b65428618","basis":"integration-target-content"},"localOverlays":[],"updatePolicy":"identify-source-before-update","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Initial aggregate import does not identify an authoritative source"},
     {"name":"migrate-to-skills","state":"active","kind":"managed-mirror","sourceId":"cursor-managed","sourcePath":null,"sourceTree":null,"content":{"kind":"sha256","value":"1addb94016b25a0abf774efd28833934bb407f0555d0c070d0b013df2dfbbd88","basis":"integration-target-content"},"localOverlays":[],"updatePolicy":"managed-upstream","lastCheckedAt":"2026-08-20T00:00:00Z","notes":"Copied from managed Cursor location without source commit/version"},

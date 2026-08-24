@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-08-20T15:37:04.670Z",
+  "updatedAt": "2026-08-24T10:07:47.254Z",
   "skills": [
     {
       "name": "1-1-prep",
@@ -470,10 +470,9 @@
       "name": "last30days",
       "description": "Research what people actually say about any topic in the last 30 days.",
       "sources": [
-        "personal",
-        "shared"
+        "personal"
       ],
-      "copies": 2
+      "copies": 1
     },
     {
       "name": "maintain-verification-skill",
